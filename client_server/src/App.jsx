@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react'
-
-const GATEWAY_URL = 'https://aiverse-gateway-3je5.onrender.com'
+import { API_BASE_URL as GATEWAY_URL } from './config/api'
 
 const App = () => {
   const [loading, setLoading] = useState('')
