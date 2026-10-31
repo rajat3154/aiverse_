@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+}
+
+:root {
+  --text: #ffffff;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+
+}
+
+body {
+  font-family: "Inter", sans-serif;
+
+}
+
+/* ─── scrollbars ─── */
+.scrollable {
+  scrollbar-width: none;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.scrollable-x-thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.scrollable-x-thin::-webkit-scrollbar {
+  height: 6px;
+  background: transparent;
+}
+
+.scrollable-x-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-x-thin::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* Dropdown lists are drawn by the browser. Without a colour of their own, options inherit the select's white text onto the
+   browser's white popup and become invisible. Pages that style their options (class on <option>) override this. */
+select option,
+select optgroup {
+  background-color: #ffffff;
+  color: #111827;
+}
