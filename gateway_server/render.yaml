@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: aiverse-gateway
+    runtime: docker
+    rootDir: gateway_server
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_SERVER_URL
+        sync: false
+      - key: AI_SERVER_URL
+        sync: false
+      - key: FLOWABLE_SERVER_URL
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false
