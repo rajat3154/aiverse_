@@ -1,0 +1,17 @@
+<included>
+    <springProperty scope="context" name="OTEL_SERVICE_NAME" source="OTEL_SERVICE_NAME" defaultValue=""/>
+    <springProperty scope="context" name="OTEL_SERVICE_NAMESPACE" source="OTEL_SERVICE_NAMESPACE" defaultValue=""/>
+    <springProperty scope="context" name="AIVERSE_SERVICE_VERSION" source="AIVERSE_SERVICE_VERSION" defaultValue=""/>
+    <springProperty scope="context" name="AIVERSE_ENVIRONMENT" source="AIVERSE_ENVIRONMENT" defaultValue=""/>
+    <springProperty scope="context" name="OTEL_DEPLOYMENT_ENVIRONMENT" source="OTEL_DEPLOYMENT_ENVIRONMENT" defaultValue=""/>
+    <springProperty scope="context" name="GRAFANA_OTLP_ENDPOINT" source="GRAFANA_OTLP_ENDPOINT" defaultValue=""/>
+    <springProperty scope="context" name="GRAFANA_OTLP_USERNAME" source="GRAFANA_OTLP_USERNAME" defaultValue=""/>
+    <springProperty scope="context" name="GRAFANA_OTLP_TOKEN" source="GRAFANA_OTLP_TOKEN" defaultValue=""/>
+
+    <appender name="AIVERSE_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.aiverse.logging.AiverseJsonFormatter"/>
+        </encoder>
+    </appender>
+    <appender name="AIVERSE_OTLP" class="com.aiverse.logging.otel.AiverseOtelAppender"/>
+</included>

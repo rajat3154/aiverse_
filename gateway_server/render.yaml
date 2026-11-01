@@ -2,8 +2,8 @@ services:
   - type: web
     name: aiverse-gateway
     runtime: docker
-    rootDir: gateway_server
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./gateway_server/Dockerfile
+    dockerContext: .
     healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_SERVER_URL
@@ -13,4 +13,18 @@ services:
       - key: FLOWABLE_SERVER_URL
         sync: false
       - key: FRONTEND_ORIGIN
+        sync: false
+      - key: OTEL_SERVICE_NAME
+        value: gateway_server
+      - key: OTEL_SERVICE_NAMESPACE
+        value: aiverse
+      - key: OTEL_DEPLOYMENT_ENVIRONMENT
+        value: production
+      - key: AIVERSE_SERVICE_VERSION
+        value: 0.1.0
+      - key: GRAFANA_OTLP_ENDPOINT
+        sync: false
+      - key: GRAFANA_OTLP_USERNAME
+        sync: false
+      - key: GRAFANA_OTLP_TOKEN
         sync: false
