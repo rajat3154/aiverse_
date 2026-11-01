@@ -6,4 +6,5 @@ tar -xzf /tmp/temurin-jdk.tar.gz --strip-components=1 -C .render-runtime/jdk
 export JAVA_HOME="$PWD/.render-runtime/jdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 chmod +x ./mvnw
+./mvnw -B -q -DskipTests -f ../logging/java/pom.xml install
 ./mvnw -B -DskipTests clean package
