@@ -1,0 +1,69 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AIVERSE Log Schema",
+  "type": "object",
+  "required": ["timestamp", "severity", "message", "service", "deployment", "event"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"]
+    },
+    "message": {
+      "type": "string"
+    },
+    "service": {
+      "type": "object",
+      "required": ["name", "namespace"],
+      "properties": {
+        "name": {"type": "string"},
+        "namespace": {"const": "aiverse"},
+        "version": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "deployment": {
+      "type": "object",
+      "required": ["environment"],
+      "properties": {
+        "environment": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["domain", "action", "outcome"],
+      "properties": {
+        "domain": {"type": "string"},
+        "action": {"type": "string"},
+        "outcome": {
+          "type": "string",
+          "enum": ["SUCCESS", "FAILURE", "STARTED", "COMPLETED", "REJECTED", "TIMEOUT", "RETRYING"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "request_id": {"type": ["string", "null"]},
+        "trace_id": {"type": ["string", "null"]},
+        "span_id": {"type": ["string", "null"]},
+        "user_id": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "error": {
+      "type": ["object", "null"],
+      "properties": {
+        "type": {"type": "string"},
+        "message": {"type": "string"},
+        "stack_trace": {"type": "string"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

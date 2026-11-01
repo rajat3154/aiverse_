@@ -16,5 +16,6 @@ java -version
 
 echo "Building AIVERSE Gateway..."
 chmod +x ./mvnw
+./mvnw -B -q -DskipTests -f ../logging/java/pom.xml install
 ./mvnw -B -DskipTests clean package
 echo "Gateway build completed."

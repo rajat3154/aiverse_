@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="com/aiverse/logging/aiverse-logback.xml"/>
+    <root level="INFO">
+        <appender-ref ref="AIVERSE_CONSOLE"/>
+        <appender-ref ref="AIVERSE_OTLP"/>
+    </root>
+</configuration>
