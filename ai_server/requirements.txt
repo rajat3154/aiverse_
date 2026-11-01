@@ -2,3 +2,5 @@ uvicorn
 python-dotenv
 fastapi
 ../logging/python
+sqlalchemy[asyncio]
+asyncpg

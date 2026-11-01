@@ -1,104 +1,90 @@
+import { useEffect, useState } from 'react'
+import Sidebar from './components/shared/Sidebar'
+import MainSection from './components/shared/MainSection'
+import RightSidebar from './components/shared/RightSidebar'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 
-import React, { useState } from 'react'
-import { API_BASE_URL as GATEWAY_URL } from './config/api'
+const MenuIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+)
 
-const App = () => {
-  const [loading, setLoading] = useState('')
-  const [results, setResults] = useState({})
+const CopilotIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+  </svg>
+)
 
-  const testAPI = async (name, endpoint) => {
-    setLoading(name)
-    setResults(prev => ({ ...prev, [name]: null }))
-    try {
-      const response = await fetch(`${GATEWAY_URL}${endpoint}`)
-      const text = await response.text()
-      let data
-      try {
-        data = JSON.parse(text)
-      } catch {
-        data = `Non-JSON response (HTTP ${response.status}): ${text.slice(0, 200)}`
-      }
-      setResults(prev => ({
-        ...prev,
-        [name]: {
-          success: response.ok,
-          status: response.status,
-          data
-        }
-      }))
-    } catch (error) {
-      setResults(prev => ({
-        ...prev,
-        [name]: {
-          success: false,
-          error: error.message
-        }
-      }))
-    } finally {
-      setLoading('')
-    }
-  }
-
-  const renderResult = (name, title) => {
-    const result = results[name]
-    if (!result) return null
-    return (
-      <div className="w-full rounded-xl border border-gray-700 bg-gray-900 p-5">
-        <h2 className="mb-3 text-lg font-semibold">{title}</h2>
-        <p className={result.success ? 'text-emerald-400' : 'text-red-400'}>
-          {result.success ? 'Connection Successful' : 'Connection Failed'}
-        </p>
-        {result.status && (
-          <p className="mt-2 text-gray-300">HTTP Status: {result.status}</p>
-        )}
-        <pre className="mt-3 overflow-x-auto rounded-lg bg-gray-950 p-3 text-sm text-gray-300">
-          {JSON.stringify(result.data || result.error, null, 2)}
-        </pre>
+// Small top bar shown only where a sidebar is hidden: menu button below md, copilot button below xl.
+const TopBar = ({ onMenu, onCopilot }) => {
+  const theme = useTheme()
+  const isLight = theme.mainSectionTheme === 'light'
+  const button = `flex items-center justify-center w-9 h-9 rounded-lg border cursor-pointer bg-transparent ${
+    isLight ? 'border-[#E5E4E7] text-gray-700' : 'border-[#263241] text-[#B8C4D0]'
+  }`
+  return (
+    <header
+      className={`xl:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
+        isLight ? 'bg-white border-[#E5E4E7]' : 'bg-[#030712] border-[#263241]/60'
+      }`}
+    >
+      <button type="button" aria-label="Open menu" onClick={onMenu} className={`${button} md:hidden`}>
+        <MenuIcon />
+      </button>
+      <div className="flex items-baseline gap-0.5 md:hidden">
+        <span className={`font-bold tracking-wider ${isLight ? 'text-gray-900' : 'text-white'}`}>AI</span>
+        <span className="font-bold tracking-wider bg-clip-text text-transparent" style={{ backgroundImage: 'var(--accent-paint)' }}>
+          VERSE
+        </span>
       </div>
-    )
-  }
+      <button type="button" aria-label="Open copilot" onClick={onCopilot} className={`${button} ml-auto text-(--accent-readable)`}>
+        <CopilotIcon />
+      </button>
+    </header>
+  )
+}
+
+const Layout = () => {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [copilotOpen, setCopilotOpen] = useState(false)
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false)
+        setCopilotOpen(false)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-4xl font-bold tracking-wider">AIVERSE</h1>
-      <div className="flex flex-wrap justify-center gap-4">
-        <button
-          onClick={() => testAPI('gateway', '/actuator/health')}
-          disabled={!!loading}
-          className="rounded-lg bg-emerald-500 px-6 py-3 font-semibold text-gray-950 hover:bg-emerald-400 disabled:opacity-50"
-        >
-          {loading === 'gateway' ? 'Testing...' : 'Test Gateway'}
-        </button>
-        <button
-          onClick={() => testAPI('ai', '/api/v1/ai/health')}
-          disabled={!!loading}
-          className="rounded-lg bg-cyan-500 px-6 py-3 font-semibold text-gray-950 hover:bg-cyan-400 disabled:opacity-50"
-        >
-          {loading === 'ai' ? 'Testing...' : 'Test AI Server'}
-        </button>
-        <button
-          onClick={() => testAPI('spring', '/api/v1/identity/health')}
-          disabled={!!loading}
-          className="rounded-lg bg-violet-500 px-6 py-3 font-semibold text-gray-950 hover:bg-violet-400 disabled:opacity-50"
-        >
-          {loading === 'spring' ? 'Testing...' : 'Test Spring Server'}
-        </button>
-        <button
-          onClick={() => testAPI('flowable', '/api/v1/workflows/health')}
-          disabled={!!loading}
-          className="rounded-lg bg-amber-500 px-6 py-3 font-semibold text-gray-950 hover:bg-amber-400 disabled:opacity-50"
-        >
-          {loading === 'flowable' ? 'Testing...' : 'Test Flowable Server'}
-        </button>
+    <div className="flex h-dvh w-full bg-black overflow-hidden">
+      <Sidebar mobileOpen={menuOpen} onMobileClose={() => setMenuOpen(false)} />
+      <div className="flex flex-col flex-1 min-w-0 h-full">
+        <TopBar onMenu={() => setMenuOpen(true)} onCopilot={() => setCopilotOpen(true)} />
+        <MainSection />
       </div>
-      <div className="w-full max-w-lg space-y-4">
-        {renderResult('gateway', 'Gateway Response')}
-        {renderResult('ai', 'AI Server Response (via Gateway)')}
-        {renderResult('spring', 'Spring Server Response (via Gateway)')}
-        {renderResult('flowable', 'Flowable Server Response (via Gateway)')}
-      </div>
+      <RightSidebar mobileOpen={copilotOpen} onMobileClose={() => setCopilotOpen(false)} />
+
+      {/* Backdrop behind an open drawer (only exists below the breakpoint that hides each sidebar) */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-30 bg-black/60 md:hidden" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+      )}
+      {copilotOpen && (
+        <div className="fixed inset-0 z-30 bg-black/60 xl:hidden" onClick={() => setCopilotOpen(false)} aria-hidden="true" />
+      )}
     </div>
   )
 }
+
+const App = () => (
+  <ThemeProvider>
+    <Layout />
+  </ThemeProvider>
+)
 
 export default App

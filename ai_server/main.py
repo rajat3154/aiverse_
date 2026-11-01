@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from datetime import datetime, timezone
 import os
@@ -8,16 +9,30 @@ from aiverse_logging import (
     generate_request_id,
     get_logger,
     log_context,
+    log_event,
 )
+from configurations.messages import get_message
+from configurations.databases.database import close_database, init_database
+
 import time
 
 load_dotenv()
 
 configure_logging("ai_server")
 log = get_logger("aiverse.ai_server")
-log.info("AIVERSE AI Server initialized")
+log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM", action="STARTUP", outcome="COMPLETED")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    await init_database()
+    try:
+        yield
+    finally:
+        await close_database()
+
 
 app=FastAPI(
+    lifespan=lifespan,
     title="AIVerse AI Server",
     description="AIverse backend API for AI workflows, tools, environments, and collaboration.",
     version="1.0.0",
@@ -64,22 +79,19 @@ async def request_logging_middleware(request, call_next):
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
             response.headers["X-Request-ID"] = request_id
 
-            log.info(
-                "HTTP request completed",
-                extra={
-                    "http_status_code": response.status_code,
-                    "duration_ms": duration_ms
-                }
+            log_event(
+                log, "INFO", get_message("api.http.request.completed"),
+                domain="API", action="HTTP_REQUEST", outcome="COMPLETED",
+                context={"http_status_code": response.status_code, "duration_ms": duration_ms},
             )
             return response
         except Exception:
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
-            log.exception(
-                "HTTP request failed",
-                extra={
-                    "http_status_code": 500,
-                    "duration_ms": duration_ms
-                }
+            log_event(
+                log, "ERROR", get_message("api.http.request.failed"),
+                domain="API", action="HTTP_REQUEST", outcome="FAILURE",
+                context={"http_status_code": 500, "duration_ms": duration_ms},
+                exc_info=True,
             )
             raise
 

@@ -2,7 +2,7 @@ package com.aiverse.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
-import ch.qos.logback.classic.spi.StackTraceElementProxy;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.LayoutBase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.opentelemetry.api.trace.Span;
@@ -65,11 +65,7 @@ public class AiverseJsonFormatter extends LayoutBase<ILoggingEvent> {
         error.put("type", throwable.getClassName());
         error.put("message", throwable.getMessage());
 
-        StringBuilder stackTrace = new StringBuilder();
-        for (StackTraceElementProxy element : throwable.getStackTraceElementProxyArray()) {
-            stackTrace.append("\tat ").append(element.getSTEAsString()).append('\n');
-        }
-        error.put("stack_trace", stackTrace.toString());
+        error.put("stack_trace", ThrowableProxyUtil.asString(throwable));
         return error;
     }
 
