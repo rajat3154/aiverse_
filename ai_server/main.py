@@ -13,6 +13,8 @@ from aiverse_logging import (
 )
 from configurations.messages import get_message
 from configurations.databases.database import close_database, init_database
+from configurations.rabbitmqs.handlers import handle_ai_request
+from configurations.rabbitmqs.rabbitmq import rabbitmq
 
 import time
 
@@ -26,8 +28,11 @@ log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM"
 async def lifespan(_: FastAPI):
     await init_database()
     try:
+        await rabbitmq.connect()
+        await rabbitmq.consume(handle_ai_request)
         yield
     finally:
+        await rabbitmq.close()
         await close_database()
 
 
@@ -107,13 +112,10 @@ async def root():
 
 @app.get("/health", tags=["Health"])
 async def health():
-    try:
-        response = {
-            "status": "healthy" ,
-            "service": "AIverse AI Server",
-            "rabbitmq": "connected",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }
-        return response
-    except Exception as error:
-        raise
+    rabbitmq_connected = await rabbitmq.health()
+    return {
+        "status": "healthy" if rabbitmq_connected else "degraded",
+        "service": "AIverse AI Server",
+        "rabbitmq": "connected" if rabbitmq_connected else "disconnected",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }

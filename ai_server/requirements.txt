@@ -4,3 +4,4 @@ fastapi
 ../logging/python
 sqlalchemy[asyncio]
 asyncpg
+aio_pika
