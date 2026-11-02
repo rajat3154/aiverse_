@@ -5,3 +5,6 @@ fastapi
 sqlalchemy[asyncio]
 asyncpg
 aio_pika
+grpcio
+grpcio-tools
+protobuf

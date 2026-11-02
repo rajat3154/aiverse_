@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package aiverse.grpc;
+
+option java_package = "com.aiverse.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "AiverseProto";
+
+service AiverseService {
+    rpc Ping(PingRequest) returns (PingResponse);
+    rpc GetServerStatus(ServerStatusRequest) returns (ServerStatusResponse);
+}
+
+message PingRequest {
+    string message = 1;
+}
+
+message PingResponse {
+    string message = 1;
+    string server = 2;
+    int64 timestamp = 3;
+}
+
+
+message ServerStatusRequest {
+}
+
+message ServerStatusResponse {
+    string server = 1;
+    string status = 2;
+    string version = 3;
+}
