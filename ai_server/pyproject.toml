@@ -14,6 +14,7 @@ dependencies = [
     "protobuf",
     "python-dotenv>=1.2.4",
     "sse-starlette",
+    "python-socketio",
     "sqlalchemy[asyncio]",
     "uvicorn>=0.54.0",
 ]
