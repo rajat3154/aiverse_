@@ -10,3 +10,5 @@ grpcio-tools
 protobuf
 sse-starlette
 python-socketio
+cloudinary
+python-multipart
