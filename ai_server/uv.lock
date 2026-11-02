@@ -10,11 +10,13 @@ dependencies = [
     { name = "aio-pika" },
     { name = "aiverse-logging" },
     { name = "asyncpg" },
+    { name = "cloudinary" },
     { name = "fastapi" },
     { name = "grpcio" },
     { name = "grpcio-tools" },
     { name = "protobuf" },
     { name = "python-dotenv" },
+    { name = "python-multipart" },
     { name = "python-socketio" },
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "sse-starlette" },
@@ -31,11 +33,13 @@ requires-dist = [
     { name = "aio-pika" },
     { name = "aiverse-logging", directory = "../logging/python" },
     { name = "asyncpg" },
+    { name = "cloudinary" },
     { name = "fastapi", specifier = ">=0.162.0" },
     { name = "grpcio" },
     { name = "grpcio-tools" },
     { name = "protobuf" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
+    { name = "python-multipart" },
     { name = "python-socketio" },
     { name = "sqlalchemy", extras = ["asyncio"] },
     { name = "sse-starlette" },
@@ -282,6 +286,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c7/0e/7fa0ef50764b67090eca4114772a2abf8b6148198475e54c660b97caeee6/click-8.5.0.tar.gz", hash = "sha256:ba0d2089de75ea0310e2dde03160e6ca10009947fb95a182f9b54021bb272e34", size = 382235, upload-time = "2026-08-26T13:33:14.56Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl", hash = "sha256:255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360", size = 125251, upload-time = "2026-08-26T13:33:12.928Z" },
+]
+
+[[package]]
+name = "cloudinary"
+version = "1.46.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "six" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/05/c8/d804490287804c778973e38ee93f6f6b1e05914086df1c91281b810372a3/cloudinary-1.46.3.tar.gz", hash = "sha256:abc5fdf7f2e3d55b81d520d3ea63242f9e1f35e0106957f1bb479d997a224e08", size = 232522, upload-time = "2026-10-04T15:53:30.527Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d4/94/cf7ace317032c8a4ea1f993ae14c5ee9580cc4377d41a089dfa80e44aba4/cloudinary-1.46.3-py3-none-any.whl", hash = "sha256:9577287a679bb1f19c74cd9e9f27d8c0d122f33a102d6031263868c41d93ee19", size = 192550, upload-time = "2026-10-04T15:53:29.034Z" },
 ]
 
 [[package]]
@@ -887,6 +905,15 @@ wheels = [
 ]
 
 [[package]]
+name = "python-multipart"
+version = "0.0.33"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/b7/15b905f6142a9a8a68f66900788da1a32e4d4254452783b37ad1eccb0506/python_multipart-0.0.33.tar.gz", hash = "sha256:b8112424a6abd162ec08d390565dd113ad699f2fe6fef3c987b8bbcbfe9e390d", size = 50499, upload-time = "2026-10-31T14:23:47.461Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/1b/6b1b4164ec734cac911460ab599bfbe46afedd42c5c9627fe4235942c314/python_multipart-0.0.33-py3-none-any.whl", hash = "sha256:8f16c07b36add9da6b2ee87d3efcaf0a45a6de9c3d0a5dd94e9ccf7675a7bc45", size = 32253, upload-time = "2026-10-31T14:23:46.33Z" },
+]
+
+[[package]]
 name = "python-socketio"
 version = "5.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -933,6 +960,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b0/d4/bfa032f961103eba93de583b161f0e6a5b63cebb8f2c7d0c6e6efe1e3d2e/simple_websocket-1.1.0.tar.gz", hash = "sha256:7939234e7aa067c534abdab3a9ed933ec9ce4691b0713c78acb195560aa52ae4", size = 17300, upload-time = "2024-10-10T22:39:31.412Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/52/59/0782e51887ac6b07ffd1570e0364cf901ebc36345fea669969d2084baebb/simple_websocket-1.1.0-py3-none-any.whl", hash = "sha256:4af6069630a38ed6c561010f0e11a5bc0d4ca569b36306eb257cd9a192497c8c", size = 13842, upload-time = "2024-10-10T22:39:29.645Z" },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
 ]
 
 [[package]]
