@@ -12,6 +12,7 @@ from aiverse_logging import (
     log_event,
 )
 from configurations.messages import get_message
+from configurations.grpc.server.grpc_server import start_grpc_server, stop_grpc_server
 from configurations.databases.database import close_database, init_database
 from configurations.rabbitmqs.handlers import handle_ai_request
 from configurations.rabbitmqs.rabbitmq import rabbitmq
@@ -27,11 +28,13 @@ log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM"
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await init_database()
+    grpc_server = start_grpc_server()
     try:
         await rabbitmq.connect()
         await rabbitmq.consume(handle_ai_request)
         yield
     finally:
+        stop_grpc_server(grpc_server)
         await rabbitmq.close()
         await close_database()
 
