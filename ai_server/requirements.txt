@@ -8,3 +8,4 @@ aio_pika
 grpcio
 grpcio-tools
 protobuf
+sse-starlette
