@@ -9,3 +9,4 @@ grpcio
 grpcio-tools
 protobuf
 sse-starlette
+python-socketio

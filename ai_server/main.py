@@ -17,8 +17,10 @@ from configurations.databases.database import close_database, init_database
 from configurations.rabbitmqs.handlers import handle_ai_request
 from configurations.rabbitmqs.rabbitmq import rabbitmq
 from configurations.sseevents.connection.sse_connection_manager import initialize_sse, shutdown_sse
+from configurations.socketio.socketio import initialize_socketio, shutdown_socketio, sio
 from configurations.sseevents.routes.sse_routes import router as sse_router
 
+import socketio
 import time
 
 load_dotenv()
@@ -31,12 +33,14 @@ log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM"
 async def lifespan(_: FastAPI):
     await init_database()
     initialize_sse()
+    initialize_socketio()
     grpc_server = start_grpc_server()
     try:
         await rabbitmq.connect()
         await rabbitmq.consume(handle_ai_request)
         yield
     finally:
+        await shutdown_socketio()
         shutdown_sse()
         stop_grpc_server(grpc_server)
         await rabbitmq.close()
@@ -108,6 +112,7 @@ async def request_logging_middleware(request, call_next):
             raise
 
 app.include_router(sse_router)
+app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
 @app.get("/", tags=["Health"])
 async def root():
