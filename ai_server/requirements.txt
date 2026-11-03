@@ -12,3 +12,4 @@ sse-starlette
 python-socketio
 cloudinary
 python-multipart
+redis
