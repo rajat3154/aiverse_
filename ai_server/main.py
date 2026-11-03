@@ -16,6 +16,7 @@ from configurations.grpc.server.grpc_server import start_grpc_server, stop_grpc_
 from configurations.databases.database import close_database, init_database
 from configurations.rabbitmqs.handlers import handle_ai_request
 from configurations.rabbitmqs.rabbitmq import rabbitmq
+from configurations.cache.redis import redis_manager
 from configurations.sseevents.connection.sse_connection_manager import initialize_sse, shutdown_sse
 from configurations.cloudinaries.cloudinary import initialize_cloudinary
 from configurations.cloudinaries.routes import router as cloudinary_router
@@ -36,6 +37,7 @@ log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM"
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await init_database()
+    await redis_manager.connect()
     initialize_sse()
     initialize_socketio()
     initialize_websocket()
@@ -54,6 +56,7 @@ async def lifespan(_: FastAPI):
         shutdown_sse()
         stop_grpc_server(grpc_server)
         await rabbitmq.close()
+        await redis_manager.close()
         await close_database()
 
 
@@ -139,9 +142,20 @@ async def root():
 @app.get("/health", tags=["Health"])
 async def health():
     rabbitmq_connected = await rabbitmq.health()
-    return {
-        "status": "healthy" if rabbitmq_connected else "degraded",
-        "service": "AIverse AI Server",
+    redis_connected = await redis_manager.health()
+    services = {
         "rabbitmq": "connected" if rabbitmq_connected else "disconnected",
+        "redis": "connected" if redis_connected else "disconnected",
+    }
+    return {
+        "status": (
+            "healthy"
+            if rabbitmq_connected and (
+                redis_connected or not redis_manager.settings.enabled
+            )
+            else "degraded"
+        ),
+        "service": "AIVERSE AI Server",
+        "services": services,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
