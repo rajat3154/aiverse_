@@ -1,9 +1,9 @@
-﻿
+
 import logging
 import os
 import sys
 
-from .formatter import AiverseJsonFormatter
+from .formatter import AiverseJsonFormatter, AiversePrettyFormatter
 from .otel import configure_otel_logging, shutdown_otel_logging
 
 _configured = False
@@ -23,7 +23,14 @@ def configure_logging(service_name: str | None = None) -> None:
     root.setLevel(level)
     if os.getenv("AIVERSE_LOG_CONSOLE", "true").lower() == "true":
         console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(AiverseJsonFormatter())
+        fmt = os.getenv("AIVERSE_LOG_FORMAT")
+        if not fmt:
+            env = (os.getenv("AIVERSE_ENVIRONMENT") or os.getenv("ENVIRONMENT") or "local").lower()
+            fmt = "pretty" if env in ("local", "dev", "development") else "json"
+        if fmt.lower() == "pretty":
+            console.setFormatter(AiversePrettyFormatter(service_name))
+        else:
+            console.setFormatter(AiverseJsonFormatter())
         root.addHandler(console)
         _aiverse_handlers.append(console)
     otel_handler = configure_otel_logging()
@@ -49,7 +56,7 @@ def log_event(logger,level,message,*,domain,action,outcome,context=None,exc_info
             "event_action": action,
             "event_outcome": outcome,
             "aiverse_context": context or {}
-        },exc_info=exc_info)
+        },exc_info=exc_info,stacklevel=2)
 
 def shutdown_logging() -> None:
     global _configured

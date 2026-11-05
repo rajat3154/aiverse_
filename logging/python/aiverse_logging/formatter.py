@@ -73,3 +73,47 @@ class AiverseJsonFormatter(logging.Formatter):
             "error": error,
         }
         return json.dumps(result, default=str, ensure_ascii=False)
+
+
+class AiversePrettyFormatter(logging.Formatter):
+    """Local, human-readable format:
+    datetime | level | aiverse | server | file/path.py:line | message
+    """
+
+    _COLORS = {
+        "DEBUG": "\033[36m", "INFO": "\033[32m", "WARNING": "\033[33m",
+        "ERROR": "\033[31m", "CRITICAL": "\033[1;31m",
+    }
+    _RESET, _DIM, _BLUE, _CYAN = "\033[0m", "\033[2m", "\033[34m", "\033[36m"
+
+    def __init__(self, service_name: str | None = None, color: bool = True):
+        super().__init__()
+        self._service = service_name or os.getenv("OTEL_SERVICE_NAME", "ai_server")
+        self._color = color
+
+    def _c(self, text: str, code: str) -> str:
+        return f"{code}{text}{self._RESET}" if self._color else text
+
+    def format(self, record: logging.LogRecord) -> str:
+        ts = datetime.fromtimestamp(record.created).strftime("%Y-%m-%d %H:%M:%S.") + f"{int(record.msecs):03d}"
+        level = record.levelname if record.levelname != "WARNING" else "WARN"
+        sep = self._c("|", self._DIM)
+        try:
+            path = os.path.relpath(record.pathname)
+        except ValueError:  # different drive on Windows
+            path = record.pathname
+        if path.startswith(".."):
+            path = record.pathname
+        location = f"{path.replace(os.sep, '/')}:{record.lineno}"
+        parts = [
+            self._c(ts, self._DIM),
+            self._c(f"{level:<5}", self._COLORS.get(record.levelname, "")),
+            self._c("aiverse", self._BLUE),
+            self._c(self._service, self._BLUE),
+            self._c(f"{location:<70}", self._CYAN),
+            record.getMessage(),
+        ]
+        line = f" {sep} ".join(parts)
+        if record.exc_info:
+            line += "\n" + self.formatException(record.exc_info)
+        return line
