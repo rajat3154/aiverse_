@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="com/aiverse/logging/aiverse-logback.xml"/>
-    <root level="INFO">
-        <appender-ref ref="AIVERSE_CONSOLE"/>
-        <appender-ref ref="AIVERSE_OTLP"/>
-    </root>
+    <!-- Local runs (no profile or "local"): human-readable console output -->
+    <springProfile name="default | local">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+        <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="AIVERSE"/>
+        <!-- datetime | level | aiverse | server | file location:line no | message -->
+        <property name="LOCAL_PATTERN"
+                  value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(|){faint} %clr(%-5level){highlight} %clr(|){faint} %clr(aiverse){blue} %clr(|){faint} %clr(${APP_NAME}){blue} %clr(|){faint} %clr(%-70(%class:%line)){cyan} %clr(|){faint} %m%n%wEx"/>
+        <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${LOCAL_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="LOCAL_CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Every other profile: structured JSON + OTLP export -->
+    <springProfile name="!default &amp; !local">
+        <include resource="com/aiverse/logging/aiverse-logback.xml"/>
+        <root level="INFO">
+            <appender-ref ref="AIVERSE_CONSOLE"/>
+            <appender-ref ref="AIVERSE_OTLP"/>
+        </root>
+    </springProfile>
 </configuration>
