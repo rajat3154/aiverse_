@@ -43,7 +43,7 @@ public class CloudinaryService {
             try {
                   log.info(message("cloudinary.upload.started", filename, folder));
                   Map<String, Object> options = ObjectUtils.asMap(
-                              "resource_type", "auto",
+                              "resource_type", "image",
                               "folder", folder,
                               "use_filename", true,
                               "unique_filename", true,

@@ -23,8 +23,12 @@ public class CloudinaryController {
 
       @PostMapping("/upload")
       public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+                  return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Only image files are allowed"));
+            }
             try {
-                  Map<String, Object> result = cloudinaryService.uploadFile(file, "aiverse/uploads");
+                  Map<String, Object> result = cloudinaryService.uploadFile(file, "aiverse/profile-photos");
                   return ResponseEntity.ok(Map.of("status", "success", "file", result));
             } catch (IllegalArgumentException error) {
                   return ResponseEntity.badRequest().body(Map.of("status", "error", "message", error.getMessage()));

@@ -252,6 +252,21 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         ))}
       </nav>
 
+      {/* TEMPORARY: shortcut to the signup page, remove once real auth navigation exists */}
+      <a
+        href="/signup"
+        className={`flex items-center gap-3 px-4 py-3 border-t text-[13px] font-medium transition-colors no-underline ${
+          collapsed ? "justify-center px-0" : ""
+        } ${isLight ? "border-[#E5E4E7] text-gray-600 hover:bg-black/3" : "border-[#263241]/60 text-[#8B98A8] hover:bg-white/3"}`}
+      >
+        <Icon size={14}>
+          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M19 8v6M22 11h-6" />
+        </Icon>
+        {!collapsed && "Sign up"}
+      </a>
+
       {/* Theme settings */}
       <div className={`relative border-t ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
         <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} anchor={isDesktop ? "left" : "above"}triggerRef={settingsTriggerRef} />

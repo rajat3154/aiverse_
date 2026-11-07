@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Sidebar from './components/shared/Sidebar'
 import MainSection from './components/shared/MainSection'
 import RightSidebar from './components/shared/RightSidebar'
+import SignupPage from './components/auth/SignupPage'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 
 const MenuIcon = () => (
@@ -81,9 +82,10 @@ const Layout = () => {
   )
 }
 
+// No router yet: /signup renders the signup page, everything else the app shell.
 const App = () => (
   <ThemeProvider>
-    <Layout />
+    {window.location.pathname === '/signup' ? <SignupPage /> : <Layout />}
   </ThemeProvider>
 )
 
