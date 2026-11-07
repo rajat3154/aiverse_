@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-users-table
+      author: aiverse
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: tenant_id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: api_key, type: VARCHAR(500), constraints: { nullable: false } }
+              - column: { name: first_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: last_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: email, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: username, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: date_of_birth, type: DATE }
+              - column: { name: phone_number, type: VARCHAR(20) }
+              - column: { name: profile_photo, type: VARCHAR(1000) }
+              - column: { name: banner, type: VARCHAR(1000) }
+              - column: { name: bio, type: VARCHAR(500) }
+              - column: { name: location, type: VARCHAR(150) }
+              - column: { name: website, type: VARCHAR(255) }
+              - column: { name: password, type: VARCHAR(255) }
+              - column: { name: role, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: account_type, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: gender, type: VARCHAR(30) }
+              - column: { name: email_verified, type: BOOLEAN, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: phone_verified, type: BOOLEAN, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: enabled, type: BOOLEAN, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uk_user_email
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: username
+            constraintName: uk_user_username

@@ -54,3 +54,105 @@ select optgroup {
   background-color: #ffffff;
   color: #111827;
 }
+
+/* flowing dots along a connected workflow edge */
+@keyframes edge-flow {
+  to { stroke-dashoffset: -32; }
+}
+
+.edge-flow {
+  animation: edge-flow 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-flow { animation: none; }
+}
+
+/* nodes rise in one after another */
+@keyframes node-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.node-in {
+  animation: node-in 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node-in { animation: none; }
+}
+
+/* slow marching dashes on edges that are not connected yet */
+@keyframes edge-idle {
+  to { stroke-dashoffset: -22; }
+}
+
+.edge-idle {
+  animation: edge-idle 1.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-idle { animation: none; }
+}
+
+/* slow drifting aurora behind the signup flow */
+@keyframes aurora {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.15); }
+}
+
+.aurora { animation: aurora 16s ease-in-out infinite; }
+.aurora-b { animation: aurora 20s ease-in-out infinite reverse; }
+
+/* a pulse of light travelling down a connected edge */
+@keyframes edge-pulse {
+  from { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  to { transform: translateY(70px); opacity: 0; }
+}
+
+.edge-pulse { animation: edge-pulse 2.2s ease-in infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .aurora-b { animation: none; }
+}
+
+/* fields of the newly opened step rise in one by one */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.step-open > * {
+  animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.step-open > *:nth-child(2) { animation-delay: 70ms; }
+.step-open > *:nth-child(3) { animation-delay: 140ms; }
+.step-open > *:nth-child(4) { animation-delay: 210ms; }
+
+/* the access card hovers gently */
+@keyframes card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.card-float { animation: card-float 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .step-open > *, .card-float { animation: none; }
+}
+
+/* profile section swaps with a soft fade */
+@keyframes section-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.section-in { animation: section-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .section-in { animation: none; }
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
