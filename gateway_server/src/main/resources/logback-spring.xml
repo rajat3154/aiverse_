@@ -4,9 +4,10 @@
     <springProfile name="default | local">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
         <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="gateway"/>
-        <!-- datetime | level | aiverse | server | file location:line no | message -->
+        <!-- datetime | level | aiverse | server | request id | file location:line no | message [METHOD path] status duration
+             The request fields come from AiverseRequestContextFilter (MDC) and are left out of lines logged outside a request. -->
         <property name="LOCAL_PATTERN"
-                  value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(|){faint} %clr(%-5level){highlight} %clr(|){faint} %clr(aiverse){blue} %clr(|){faint} %clr(${APP_NAME}){blue} %clr(|){faint} %clr(%-70(%class:%line)){cyan} %clr(|){faint} %m%n%wEx"/>
+                  value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(|){faint} %clr(%-5level){highlight} %clr(|){faint} %clr(aiverse){blue} %clr(|){faint} %clr(${APP_NAME}){blue} %clr(|){faint} %clr(%-8.8X{request_id:-}){magenta} %clr(|){faint} %clr(%-70(%class:%line)){cyan} %clr(|){faint} %m%clr(%replace( [%X{http_method:-} %X{http_path:-}]){'^ \[ \]$', ''}){faint}%clr(%replace( status=%X{http_status_code:-}){'^ status=$', ''}){faint}%clr(%replace( duration=%X{duration_ms:-}ms){'^ duration=ms$', ''}){faint}%n%wEx"/>
         <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>${LOCAL_PATTERN}</pattern>
