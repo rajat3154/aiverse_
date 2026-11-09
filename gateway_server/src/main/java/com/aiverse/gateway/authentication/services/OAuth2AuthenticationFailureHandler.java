@@ -20,7 +20,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
 
       public static final String ERROR_PARAM = "error";
       public static final String ERROR_CODE = "oauth_failed";
-      private static final Logger log = LoggerFactory.getLogger(OAuth2AuthenticationFailureHandler.class)
+      private static final Logger log = LoggerFactory.getLogger(OAuth2AuthenticationFailureHandler.class);
       private final MessageSource messages;
       private final String frontendFailureUrl;
       public OAuth2AuthenticationFailureHandler(MessageSource messages,@Value("${aiverse.oauth.frontend-failure-url}") String frontendFailureUrl) {
