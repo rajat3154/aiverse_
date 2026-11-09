@@ -3,6 +3,7 @@ import Sidebar from './components/shared/Sidebar'
 import MainSection from './components/shared/MainSection'
 import RightSidebar from './components/shared/RightSidebar'
 import LoginPage from './components/auth/LoginPage'
+import OAuthCallbackPage from './components/auth/OAuthCallbackPage'
 import SignupPage from './components/auth/SignupPage'
 import { isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
@@ -89,6 +90,14 @@ const App = () => {
   const path = window.location.pathname
   const signedIn = isAuthenticated()
 
+  // The OAuth callback must always render: it is where the session is created.
+  if (path === '/oauth2/success') {
+    return (
+      <ThemeProvider>
+        <OAuthCallbackPage />
+      </ThemeProvider>
+    )
+  }
   if (signedIn && (path === '/login' || path === '/signup')) {
     window.location.replace('/')
     return null

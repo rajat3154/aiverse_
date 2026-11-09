@@ -19,6 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.aiverse.gateway.authentication.services.OAuth2AuthenticationFailureHandler;
+import com.aiverse.gateway.authentication.services.OAuth2AuthenticationSuccessHandler;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -29,6 +32,9 @@ public class SecurityConfig {
                   "/api/v1/auth/login",
                   "/api/v1/auth/refresh",
                   "/api/v1/auth/logout",
+                  "/api/v1/auth/oauth/exchange",
+                  "/oauth2/authorization/**",
+                  "/login/oauth2/code/**",
                   "/api/v1/identity/auth/signup",
                   "/api/v1/identity/cloudinary/upload",
                   "/actuator/health",
@@ -36,6 +42,8 @@ public class SecurityConfig {
       };
 
       private final JwtAuthenticationFilter jwtAuthenticationFilter;
+      private final OAuth2AuthenticationSuccessHandler oauthSuccessHandler;
+      private final OAuth2AuthenticationFailureHandler oauthFailureHandler;
       private final JsonErrorWriter errorWriter;
       private final MessageSource messages;
 
@@ -63,6 +71,10 @@ public class SecurityConfig {
                                                       request.getRequestURI()));
                                           errorWriter.write(response, HttpStatus.FORBIDDEN, message("auth.forbidden"));
                                     }))
+
+                        .oauth2Login(oauth -> oauth
+                                    .successHandler(oauthSuccessHandler)
+                                    .failureHandler(oauthFailureHandler))
                         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                         .build();
       }
