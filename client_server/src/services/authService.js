@@ -64,13 +64,24 @@ const toSession = (data, previous) => ({
   refreshToken: data.refreshToken,
   // refresh a little early so a request never goes out with a token about to expire
   accessExpiresAt: Date.now() + data.expiresIn * 1000 - 10_000,
-  user: previous?.user ?? {
-    tenantId: data.tenantId,
-    email: data.email,
-    username: data.username,
-    role: data.role,
-  },
+  user: previous?.user ??
+    data.user ?? {
+      tenantId: data.tenantId,
+      email: data.email,
+      username: data.username,
+      role: data.role,
+    },
 });
+
+/** Where the browser goes to start a Google/GitHub sign-in. The gateway runs the whole OAuth round trip. */
+export const oauthLoginUrl = (provider) => `${API_BASE_URL ?? ""}/oauth2/authorization/${provider}`;
+
+/** Trades the one-time code from the OAuth redirect for AIVERSE tokens and starts the session. */
+export const exchangeOAuthCode = async (code) => {
+  const session = toSession(await post("/oauth/exchange", { code }));
+  saveSession(session);
+  return session;
+};
 
 export const login = async (identifier, password) => {
   const data = await post("/login", { identifier: identifier.trim(), password });

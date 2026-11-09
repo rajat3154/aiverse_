@@ -59,22 +59,9 @@ public class AuthService {
                   if (!user.isEnabled() || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                         throw new InvalidCredentialsException(message("auth.login.invalid"));
                   }
-                  UUID userId = user.getTenantId();
-                  String accessToken = jwtService.generateAccessToken(userId, user.getEmail(), user.getUsername(), user.getRole());
-                  String refreshToken = jwtService.generateRefreshToken(userId);
-                  Claims refreshClaims = jwtService.validateRefreshToken(refreshToken);
-                  refreshTokenStore.register(userId, jwtService.getTokenId(refreshClaims));
-                  log.info(message("auth.login.completed", userId, System.currentTimeMillis() - startedAt));
-                  return AuthResponse.builder()
-                              .accessToken(accessToken)
-                              .refreshToken(refreshToken)
-                              .tokenType("Bearer")
-                              .expiresIn(jwtService.getAccessTokenExpiration() / 1000)
-                              .tenantId(userId)
-                              .email(user.getEmail())
-                              .username(user.getUsername())
-                              .role(user.getRole())
-                              .build();
+                  AuthResponse response = issueTokens(user);
+                  log.info(message("auth.login.completed", user.getTenantId(), System.currentTimeMillis() - startedAt));
+                  return response;
             } catch (InvalidCredentialsException exception) {
                   log.warn(message("auth.login.failed", identifier, exception.getMessage(),
                               System.currentTimeMillis() - startedAt));
@@ -84,6 +71,24 @@ public class AuthService {
                               System.currentTimeMillis() - startedAt), exception);
                   throw exception;
             }
+      }
+
+      public AuthResponse issueTokens(User user) {
+            UUID userId = user.getTenantId();
+            String accessToken = jwtService.generateAccessToken(userId, user.getEmail(), user.getUsername(), user.getRole());
+            String refreshToken = jwtService.generateRefreshToken(userId);
+            Claims refreshClaims = jwtService.validateRefreshToken(refreshToken);
+            refreshTokenStore.register(userId, jwtService.getTokenId(refreshClaims));
+            return AuthResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .tokenType("Bearer")
+                        .expiresIn(jwtService.getAccessTokenExpiration() / 1000)
+                        .tenantId(userId)
+                        .email(user.getEmail())
+                        .username(user.getUsername())
+                        .role(user.getRole())
+                        .build();
       }
 
       @Transactional

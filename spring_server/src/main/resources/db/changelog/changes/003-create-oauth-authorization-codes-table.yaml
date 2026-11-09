@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-oauth-authorization-codes-table
+      author: aiverse
+      changes:
+        - createTable:
+            tableName: oauth_authorization_codes
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: code, type: VARCHAR(512), constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: expires_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: used, type: BOOLEAN, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: oauth_authorization_codes
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: tenant_id
+            constraintName: fk_oauth_code_user
+            onDelete: CASCADE
+        - createIndex:
+            tableName: oauth_authorization_codes
+            indexName: idx_oauth_code_value
+            unique: true
+            columns:
+              - column: { name: code }
+        # lets expired codes be purged cheaply
+        - createIndex:
+            tableName: oauth_authorization_codes
+            indexName: idx_oauth_code_expires_at
+            columns:
+              - column: { name: expires_at }

@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changes/001-create-users-table.yaml
+  - include:
+      file: db/changelog/changes/002-create-user-auth-providers-table.yaml
+  - include:
+      file: db/changelog/changes/003-create-oauth-authorization-codes-table.yaml

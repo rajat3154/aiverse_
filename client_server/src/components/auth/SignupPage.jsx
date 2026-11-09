@@ -4,6 +4,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { Field } from "./AuthFields";
 import { inputClass } from "./inputClass";
 import AuthLayout from "./AuthLayout";
+import OAuthButtons from "./OAuthButtons";
 
 const MAX_PHOTO_BYTES = 10 * 1024 * 1024; // matches the server's upload limit
 
@@ -148,7 +149,11 @@ const SignupPage = () => {
               <h2 className="text-2xl font-bold">Create your account</h2>
               <p className={`mt-1 text-sm ${light ? "text-gray-600" : "text-[#8FA0B3]"}`}>Start building with AIVerse in a minute.</p>
 
-              <form onSubmit={onSubmit} noValidate className="mt-8 space-y-4">
+              <div className="mt-8">
+                <OAuthButtons light={light} verb="Sign up" />
+              </div>
+
+              <form onSubmit={onSubmit} noValidate className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div
                     className={`relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border ${

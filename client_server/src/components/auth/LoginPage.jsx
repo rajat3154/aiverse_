@@ -4,6 +4,7 @@ import { login } from "../../services/authService";
 import { Field } from "./AuthFields";
 import { inputClass } from "./inputClass";
 import AuthLayout from "./AuthLayout";
+import OAuthButtons from "./OAuthButtons";
 
 const INITIAL = { identifier: "", password: "" };
 
@@ -15,8 +16,14 @@ const validate = (v) => {
   return e;
 };
 
+const OAUTH_ERRORS = {
+  oauth_failed: "We could not sign you in with that provider. Make sure its email is verified, or use another sign-in method.",
+};
+
 const LoginPage = () => {
   const theme = useTheme();
+  // The gateway sends the browser back here with ?error=<code> when a Google/GitHub sign-in fails.
+  const oauthError = OAUTH_ERRORS[new URLSearchParams(window.location.search).get("error")] ?? "";
   const light = theme.mainSectionTheme === "light";
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
@@ -55,7 +62,16 @@ const LoginPage = () => {
       <h2 className="text-2xl font-bold">Welcome back</h2>
       <p className={`mt-1 text-sm ${light ? "text-gray-600" : "text-[#8FA0B3]"}`}>Sign in to continue to AIVerse.</p>
 
-      <form onSubmit={onSubmit} noValidate className="mt-8 space-y-4">
+      <div className="mt-8">
+        {oauthError && (
+          <p role="alert" className={`mb-4 border border-red-500/40 bg-red-500/10 px-3.5 py-2.5 text-sm ${light ? "text-red-700" : "text-red-300"}`}>
+            {oauthError}
+          </p>
+        )}
+        <OAuthButtons light={light} />
+      </div>
+
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
         <Field light={light} label="Email or username" error={errors.identifier}>
           <input type="text" autoComplete="username" placeholder="you@example.com" autoFocus {...bind("identifier")} />
         </Field>
