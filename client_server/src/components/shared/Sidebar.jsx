@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { logout } from "../../services/authService";
 import SettingsPanel from "./SettingsPanel";
 
 const Icon = ({ size = 15, children }) => (
@@ -90,6 +91,13 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const settingsTriggerRef = useRef(null);
 
   const isLight = theme.leftSidebarTheme === "light";
+
+  const [signingOut, setSigningOut] = useState(false);
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await logout(); // clears the local session even if the server call fails
+    window.location.replace("/login");
+  };
 
   const toggleExpanded = (id) => setExpandedItem((current) => (current === id ? null : id));
 
@@ -252,20 +260,22 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         ))}
       </nav>
 
-      {/* TEMPORARY: shortcut to the signup page, remove once real auth navigation exists */}
-      <a
-        href="/signup"
-        className={`flex items-center gap-3 px-4 py-3 border-t text-[13px] font-medium transition-colors no-underline ${
+      {/* Sign out: revokes the refresh token on the gateway, then returns to the login page */}
+      <button
+        type="button"
+        onClick={handleSignOut}
+        disabled={signingOut}
+        className={`flex items-center gap-3 w-full px-4 py-3 border-0 border-t bg-transparent cursor-pointer text-[13px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
           collapsed ? "justify-center px-0" : ""
         } ${isLight ? "border-[#E5E4E7] text-gray-600 hover:bg-black/3" : "border-[#263241]/60 text-[#8B98A8] hover:bg-white/3"}`}
       >
         <Icon size={14}>
-          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M19 8v6M22 11h-6" />
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
         </Icon>
-        {!collapsed && "Sign up"}
-      </a>
+        {!collapsed && (signingOut ? "Signing out…" : "Sign out")}
+      </button>
 
       {/* Theme settings */}
       <div className={`relative border-t ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>

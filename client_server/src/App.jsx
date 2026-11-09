@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import Sidebar from './components/shared/Sidebar'
 import MainSection from './components/shared/MainSection'
 import RightSidebar from './components/shared/RightSidebar'
+import LoginPage from './components/auth/LoginPage'
 import SignupPage from './components/auth/SignupPage'
+import { isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 
 const MenuIcon = () => (
@@ -82,11 +84,25 @@ const Layout = () => {
   )
 }
 
-// No router yet: /signup renders the signup page, everything else the app shell.
-const App = () => (
-  <ThemeProvider>
-    {window.location.pathname === '/signup' ? <SignupPage /> : <Layout />}
-  </ThemeProvider>
-)
+// No router yet: /login and /signup render the auth pages, everything else the app shell (which needs a session).
+const App = () => {
+  const path = window.location.pathname
+  const signedIn = isAuthenticated()
+
+  if (signedIn && (path === '/login' || path === '/signup')) {
+    window.location.replace('/')
+    return null
+  }
+  if (!signedIn && path !== '/login' && path !== '/signup') {
+    window.location.replace('/login')
+    return null
+  }
+
+  return (
+    <ThemeProvider>
+      {path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+    </ThemeProvider>
+  )
+}
 
 export default App
