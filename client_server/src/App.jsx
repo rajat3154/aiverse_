@@ -5,7 +5,8 @@ import RightSidebar from './components/shared/RightSidebar'
 import LoginPage from './components/auth/LoginPage'
 import OAuthCallbackPage from './components/auth/OAuthCallbackPage'
 import SignupPage from './components/auth/SignupPage'
-import { isAuthenticated } from './services/authService'
+import MasterDashboard from './components/master/MasterDashboard'
+import { getSession, isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 
 const MenuIcon = () => (
@@ -14,15 +15,8 @@ const MenuIcon = () => (
   </svg>
 )
 
-const CopilotIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-  </svg>
-)
-
 // Small top bar shown only where a sidebar is hidden: menu button below md, copilot button below xl.
-const TopBar = ({ onMenu, onCopilot }) => {
+const TopBar = ({ onMenu }) => {
   const theme = useTheme()
   const isLight = theme.mainSectionTheme === 'light'
   const button = `flex items-center justify-center w-9 h-9 rounded-lg border cursor-pointer bg-transparent ${
@@ -30,27 +24,24 @@ const TopBar = ({ onMenu, onCopilot }) => {
   }`
   return (
     <header
-      className={`xl:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
+      className={`md:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
         isLight ? 'bg-white border-[#E5E4E7]' : 'bg-[#030712] border-[#263241]/60'
       }`}
     >
-      <button type="button" aria-label="Open menu" onClick={onMenu} className={`${button} md:hidden`}>
+      <button type="button" aria-label="Open menu" onClick={onMenu} className={button}>
         <MenuIcon />
       </button>
-      <div className="flex items-baseline gap-0.5 md:hidden">
+      <div className="flex items-baseline gap-0.5">
         <span className={`font-bold tracking-wider ${isLight ? 'text-gray-900' : 'text-white'}`}>AI</span>
         <span className="font-bold tracking-wider bg-clip-text text-transparent" style={{ backgroundImage: 'var(--accent-paint)' }}>
           VERSE
         </span>
       </div>
-      <button type="button" aria-label="Open copilot" onClick={onCopilot} className={`${button} ml-auto text-(--accent-readable)`}>
-        <CopilotIcon />
-      </button>
     </header>
   )
 }
 
-const Layout = () => {
+const Layout = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [copilotOpen, setCopilotOpen] = useState(false)
 
@@ -69,17 +60,34 @@ const Layout = () => {
     <div className="flex h-dvh w-full bg-black overflow-hidden">
       <Sidebar mobileOpen={menuOpen} onMobileClose={() => setMenuOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0 h-full">
-        <TopBar onMenu={() => setMenuOpen(true)} onCopilot={() => setCopilotOpen(true)} />
-        <MainSection />
+        <TopBar onMenu={() => setMenuOpen(true)} />
+        {children ?? <MainSection />}
       </div>
-      <RightSidebar mobileOpen={copilotOpen} onMobileClose={() => setCopilotOpen(false)} />
+      <RightSidebar open={copilotOpen} onClose={() => setCopilotOpen(false)} />
+
+      {/* Floating chatbot button: opens and closes the copilot panel */}
+      <button
+        type="button"
+        aria-label={copilotOpen ? "Close copilot" : "Open copilot"}
+        aria-expanded={copilotOpen}
+        onClick={() => setCopilotOpen((v) => !v)}
+        className={`fixed right-5 bottom-5 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-0 text-black shadow-xl transition hover:scale-105 ${
+          copilotOpen ? "pointer-events-none scale-75 opacity-0" : ""
+        }`}
+        style={{ backgroundImage: "var(--accent-paint)" }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          <path d="M9 9h.01M13 9h.01M17 9h.01" />
+        </svg>
+      </button>
 
       {/* Backdrop behind an open drawer (only exists below the breakpoint that hides each sidebar) */}
       {menuOpen && (
         <div className="fixed inset-0 z-30 bg-black/60 md:hidden" onClick={() => setMenuOpen(false)} aria-hidden="true" />
       )}
       {copilotOpen && (
-        <div className="fixed inset-0 z-30 bg-black/60 xl:hidden" onClick={() => setCopilotOpen(false)} aria-hidden="true" />
+        <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setCopilotOpen(false)} aria-hidden="true" />
       )}
     </div>
   )
@@ -98,8 +106,11 @@ const App = () => {
       </ThemeProvider>
     )
   }
+  // The role here only decides which screen to show; the gateway enforces MASTER on every /users request.
+  const isMaster = getSession()?.user?.role === 'MASTER'
+  const home = isMaster ? '/master' : '/'
   if (signedIn && (path === '/login' || path === '/signup')) {
-    window.location.replace('/')
+    window.location.replace(home)
     return null
   }
   if (!signedIn && path !== '/login' && path !== '/signup') {
@@ -107,9 +118,15 @@ const App = () => {
     return null
   }
 
+  // The master dashboard is only for the master account.
+  if (signedIn && path.startsWith('/master') && !isMaster) {
+    window.location.replace(home)
+    return null
+  }
+
   return (
     <ThemeProvider>
-      {path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
     </ThemeProvider>
   )
 }

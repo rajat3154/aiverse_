@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .authorizeHttpRequests(auth -> auth
                                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                     .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                    .requestMatchers("/api/v1/identity/users", "/api/v1/identity/users/**").hasRole("MASTER")
                                     .anyRequest().authenticated())
                         .exceptionHandling(handling -> handling
                                     .authenticationEntryPoint((request, response, exception) -> {
