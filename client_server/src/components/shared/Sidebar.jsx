@@ -105,7 +105,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
     <aside
       className={`fixed inset-y-0 left-0 z-40 md:relative md:inset-auto md:z-auto shrink-0 flex flex-col h-full border-r transition-all duration-300 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-linear-to-b from-[#030712] to-black border-[#263241]/60"}`}
+      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]/60"}`}
     >
       <button
         type="button"
@@ -114,7 +114,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         className={`absolute -right-3 top-5 z-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border cursor-pointer transition-colors ${
           isLight
             ? "bg-white border-[#E5E4E7] text-gray-500 hover:bg-black/4"
-            : "bg-[#0B0F17] border-[#263241] text-[#566273] hover:bg-white/5"
+            : "bg-gray-950 border-[#263241] text-[#566273] hover:bg-white/5"
         }`}
       >
         <svg
@@ -260,6 +260,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         ))}
       </nav>
 
+<<<<<<< Updated upstream
       {/* Sign out: revokes the refresh token on the gateway, then returns to the login page */}
       <button
         type="button"
@@ -276,6 +277,53 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         </Icon>
         {!collapsed && (signingOut ? "Signing out…" : "Sign out")}
       </button>
+=======
+      {/* The master group is pinned to the bottom of the sidebar, above Sign out, so it is always in reach */}
+      {isMaster && (
+        <div className={`shrink-0 border-t pt-2 pb-1 [&>div]:mb-1 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
+          {renderGroup(masterGroup)}
+        </div>
+      )}
+
+      {/* Signed-in user: photo, name and email; clicking opens Settings and Log out */}
+      <div ref={userRef} className={`relative border-t ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
+        <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} anchor={isDesktop ? "left" : "above"} triggerRef={settingsTriggerRef} />
+
+        {userMenuOpen && (
+          <div
+            role="menu"
+            className={`absolute bottom-full left-2 z-50 mb-2 border py-1 shadow-2xl ${collapsed ? "w-48" : "right-2"} ${
+              isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241] bg-gray-950 text-white"
+            }`}
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setUserMenuOpen(false);
+                setSettingsOpen(true);
+              }}
+              className={`flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 py-2.5 text-left text-[13px] font-medium transition-colors ${isLight ? "hover:bg-black/4" : "hover:bg-white/5"}`}
+            >
+              <SettingsIconSmall /> Settings
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleSignOut}
+              disabled={signingOut}
+              className={`flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 py-2.5 text-left text-[13px] font-medium text-red-400 transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${isLight ? "hover:bg-black/4" : "hover:bg-white/5"}`}
+            >
+              <Icon size={14}>
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </Icon>
+              {signingOut ? "Logging out…" : "Log out"}
+            </button>
+          </div>
+        )}
+>>>>>>> Stashed changes
 
       {/* Theme settings */}
       <div className={`relative border-t ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>

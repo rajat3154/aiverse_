@@ -30,8 +30,13 @@ const TopBar = ({ onMenu, onCopilot }) => {
   }`
   return (
     <header
+<<<<<<< Updated upstream
       className={`xl:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
         isLight ? 'bg-white border-[#E5E4E7]' : 'bg-[#030712] border-[#263241]/60'
+=======
+      className={`md:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
+        isLight ? 'bg-white border-[#E5E4E7]' : 'bg-gray-950 border-[#263241]/60'
+>>>>>>> Stashed changes
       }`}
     >
       <button type="button" aria-label="Open menu" onClick={onMenu} className={`${button} md:hidden`}>
