@@ -156,3 +156,157 @@ select optgroup {
 
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── home hero ─── */
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.hero-rise { animation: hero-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+
+/* sections fade up once as they scroll into view (the .is-visible class is added by the page) */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0ms);
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* faint grid fading out towards the edges */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line, rgba(255, 255, 255, 0.05)) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line, rgba(255, 255, 255, 0.05)) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, #000 25%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, #000 25%, transparent 75%);
+}
+
+/* provider strip scrolling sideways forever (the list is rendered twice, so -50% loops seamlessly) */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 45s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-fade {
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+@keyframes caret-blink { 50% { opacity: 0; } }
+.caret { animation: caret-blink 1s steps(1) infinite; }
+
+/* a soft light that follows the cursor over a card */
+.spotlight { position: relative; overflow: hidden; }
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), var(--accent-soft), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.spotlight:hover::before { opacity: 1; }
+
+/* the line joining the "how it works" steps draws itself */
+.timeline-line {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s;
+}
+.is-visible .timeline-line { transform: scaleX(1); }
+
+@keyframes ping-soft {
+  0% { transform: scale(1); opacity: 0.55; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+.ping-soft { animation: ping-soft 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@keyframes shine-sweep {
+  from { transform: translateX(-120%) skewX(-18deg); }
+  to { transform: translateX(260%) skewX(-18deg); }
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+}
+.shine:hover::after { animation: shine-sweep 0.9s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise, .marquee-track, .caret, .ping-soft { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .timeline-line { transform: none; transition: none; }
+  .shine:hover::after { animation: none; }
+}
+
+/* ─── home hero, round two ─── */
+
+/* a bright arc travelling round the border of the workflow card */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes beam-spin { to { --beam-angle: 360deg; } }
+.beam-border {
+  background: conic-gradient(from var(--beam-angle), transparent 0 62%, var(--accent-color) 82%, transparent 100%);
+  animation: beam-spin 7s linear infinite;
+}
+
+/* headline words arrive one by one, un-blurring as they rise */
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(0.4em); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.word-in { animation: word-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+
+/* little provider chips drifting around the workflow card */
+@keyframes float-chip {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-12px) rotate(var(--r, 0deg)); }
+}
+.float-chip { animation: float-chip var(--t, 6s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+
+/* sparkline under each stat draws itself when the stat scrolls into view */
+.spark-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s;
+}
+.is-visible .spark-line { stroke-dashoffset: 0; }
+
+.marquee-reverse .marquee-track { animation-direction: reverse; animation-duration: 60s; }
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.gradient-shift { background-size: 200% 200%; animation: gradient-shift 6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .beam-border, .word-in, .float-chip, .gradient-shift { animation: none; }
+  .spark-line { stroke-dashoffset: 0; transition: none; }
+}
+
+/* ─── hero orbit: rings turning at different speeds, each label turning back so it stays upright ─── */
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+.orbit { animation: orbit-spin var(--dur, 40s) linear infinite; }
+.orbit.rev { animation-direction: reverse; }
+.orbit-inner { animation: orbit-spin var(--dur, 40s) linear infinite reverse; }
+.orbit.rev .orbit-inner { animation-direction: normal; }
+.orbit-wrap:hover .orbit,
+.orbit-wrap:hover .orbit-inner { animation-play-state: paused; }
+
+@keyframes core-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 40px -6px var(--accent-color); }
+  50% { transform: scale(1.06); box-shadow: 0 0 70px -4px var(--accent-color); }
+}
+.core-breathe { animation: core-breathe 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit, .orbit-inner, .core-breathe { animation: none; }
+}

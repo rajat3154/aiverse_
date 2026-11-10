@@ -55,15 +55,15 @@ export default function MainSection() {
 
   const muted = isLight ? "text-gray-600" : "text-[#8B98A8]";
   const subtle = isLight ? "text-gray-500" : "text-[#566273]";
-  const card = isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]";
+  const card = isLight ? "bg-white border-[#E5E4E7]" : "bg-black border-[#263241]";
 
   return (
     <main
       className={`flex-1 min-h-0 overflow-y-auto scrollable px-4 sm:px-8 py-8 sm:py-12 ${
-        isLight ? "bg-[#F4F7FA] text-gray-900" : "bg-gray-950 text-white"
+        isLight ? "bg-[#F4F7FA] text-gray-900" : "bg-black text-white"
       }`}
     >
-      <div className="mx-auto w-full max-w-4xl flex flex-col gap-10 sm:gap-14">
+      <div className="w-full flex flex-col gap-10 sm:gap-14">
         {/* Hero */}
         <section className="text-center flex flex-col items-center gap-6">
           <span className="px-3 py-1 rounded-full border text-xs tracking-widest bg-(--accent-soft) border-(--accent-border) text-(--accent-readable)">
@@ -81,14 +81,14 @@ export default function MainSection() {
           <div className="flex flex-col sm:flex-row w-full sm:w-auto justify-center gap-3">
             <button
               type="button"
-              className="px-6 py-3 rounded-lg text-sm font-semibold text-[#070A0F] cursor-pointer border-0 w-full sm:w-auto"
+              className="px-6 py-3 text-sm font-semibold text-[#070A0F] cursor-pointer border-0 w-full sm:w-auto"
               style={{ background: "var(--accent-paint)" }}
             >
               Get started
             </button>
             <button
               type="button"
-              className={`px-6 py-3 w-full sm:w-auto rounded-lg text-sm font-semibold cursor-pointer border transition-colors bg-transparent hover:border-(--accent-border) hover:text-(--accent-readable) ${
+              className={`px-6 py-3 w-full sm:w-auto text-sm font-semibold cursor-pointer border transition-colors bg-transparent hover:border-(--accent-border) hover:text-(--accent-readable) ${
                 isLight ? "border-[#E5E4E7] text-gray-700" : "border-[#263241] text-[#B8C4D0]"
               }`}
             >
@@ -112,7 +112,7 @@ export default function MainSection() {
         {/* Stats */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map(({ value, label }) => (
-            <div key={label} className={`rounded-xl border p-4 text-center ${card}`}>
+            <div key={label} className={` border p-4 text-center ${card}`}>
               <div className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: "var(--accent-paint)" }}>
                 {value}
               </div>
@@ -128,9 +128,9 @@ export default function MainSection() {
             {features.map(({ title, description, icon }) => (
               <div
                 key={title}
-                className={`rounded-xl border p-5 flex flex-col gap-3 transition-colors hover:border-(--accent-border) ${card}`}
+                className={` border p-5 flex flex-col gap-3 transition-colors hover:border-(--accent-border) ${card}`}
               >
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-(--accent-soft) border border-(--accent-border) text-(--accent-readable)">
+                <div className="w-9 h-9 flex items-center justify-center bg-(--accent-soft) border border-(--accent-border) text-(--accent-readable)">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     {icon}
                   </svg>
@@ -147,7 +147,7 @@ export default function MainSection() {
           <h2 className={`text-xs tracking-widest font-medium ${subtle}`}>HOW IT WORKS</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {steps.map(({ title, description }, index) => (
-              <div key={title} className={`rounded-xl border p-5 ${card}`}>
+              <div key={title} className={` border p-5 ${card}`}>
                 <div className="text-xs font-semibold text-(--accent-readable)">{String(index + 1).padStart(2, "0")}</div>
                 <h3 className="mt-2 text-sm font-semibold">{title}</h3>
                 <p className={`mt-1 text-sm leading-relaxed ${muted}`}>{description}</p>

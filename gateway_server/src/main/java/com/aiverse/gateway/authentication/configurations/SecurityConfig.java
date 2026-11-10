@@ -77,6 +77,7 @@ public class SecurityConfig {
                                     .successHandler(oauthSuccessHandler)
                                     .failureHandler(oauthFailureHandler))
                         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                        .addFilterAfter(new UserIdentityHeaderFilter(messages), JwtAuthenticationFilter.class)
                         .build();
       }
 

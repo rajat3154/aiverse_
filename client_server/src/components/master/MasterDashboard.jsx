@@ -88,10 +88,23 @@ const TONES = {
   teal: "text-teal-500 bg-teal-500/12",
   neutral: "text-gray-500 bg-gray-500/10",
 };
+// White mode: solid coloured badges with white text, so they stay clearly visible on a white page.
+const SOLID_TONES = {
+  green: "bg-emerald-600 text-white",
+  red: "bg-red-600 text-white",
+  amber: "bg-amber-500 text-gray-900",
+  orange: "bg-orange-600 text-white",
+  blue: "bg-blue-600 text-white",
+  sky: "bg-sky-600 text-white",
+  violet: "bg-violet-600 text-white",
+  pink: "bg-pink-600 text-white",
+  teal: "bg-teal-600 text-white",
+  neutral: "bg-gray-600 text-white",
+};
 const Badge = ({ tone = "neutral", children }) => {
   const light = useTheme().mainSectionTheme === "light";
   const colour =
-    tone === "neutral" && !light ? "text-[#B4C0CE] bg-white/10" : tone === "amber" && !light ? "text-amber-400 bg-amber-500/15" : TONES[tone];
+    light ? SOLID_TONES[tone] : tone === "neutral" ? "text-[#B4C0CE] bg-white/10" : tone === "amber" ? "text-amber-400 bg-amber-500/15" : TONES[tone];
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap ${colour}`}>
       <span className="h-1.5 w-1.5 rounded-full bg-current" />

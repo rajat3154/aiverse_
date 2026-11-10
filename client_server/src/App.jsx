@@ -6,6 +6,7 @@ import LoginPage from './components/auth/LoginPage'
 import OAuthCallbackPage from './components/auth/OAuthCallbackPage'
 import SignupPage from './components/auth/SignupPage'
 import MasterDashboard from './components/master/MasterDashboard'
+import CredentialsPage from './components/credentials/CredentialsPage'
 import { getSession, isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 
@@ -25,7 +26,7 @@ const TopBar = ({ onMenu }) => {
   return (
     <header
       className={`md:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 border-b ${
-        isLight ? 'bg-white border-[#E5E4E7]' : 'bg-gray-950 border-[#263241]/60'
+        isLight ? 'bg-white border-[#E5E4E7]' : 'bg-black border-[#263241]/60'
       }`}
     >
       <button type="button" aria-label="Open menu" onClick={onMenu} className={button}>
@@ -118,6 +119,12 @@ const App = () => {
     return null
   }
 
+  // The master account has no credentials page; it goes back to its dashboard.
+  if (signedIn && isMaster && path.startsWith('/credentials')) {
+    window.location.replace(home)
+    return null
+  }
+
   // The master dashboard is only for the master account.
   if (signedIn && path.startsWith('/master') && !isMaster) {
     window.location.replace(home)
@@ -126,7 +133,7 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
     </ThemeProvider>
   )
 }
