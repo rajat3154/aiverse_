@@ -55,12 +55,12 @@ export default function MainSection() {
 
   const muted = isLight ? "text-gray-600" : "text-[#8B98A8]";
   const subtle = isLight ? "text-gray-500" : "text-[#566273]";
-  const card = isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]";
+  const card = isLight ? "bg-white border-[#E5E4E7]" : "bg-[#0B0F17] border-[#263241]";
 
   return (
     <main
       className={`flex-1 min-h-0 overflow-y-auto scrollable px-4 sm:px-8 py-8 sm:py-12 ${
-        isLight ? "bg-[#F4F7FA] text-gray-900" : "bg-gray-950 text-white"
+        isLight ? "bg-[#F4F7FA] text-gray-900" : "bg-black text-white"
       }`}
     >
       <div className="mx-auto w-full max-w-4xl flex flex-col gap-10 sm:gap-14">

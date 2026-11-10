@@ -106,19 +106,10 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
 
   return (
     <aside
-<<<<<<< Updated upstream
       className={`fixed inset-y-0 right-0 z-40 xl:relative xl:inset-auto xl:z-auto shrink-0 flex flex-col h-full w-85 max-w-[90vw] border-l overflow-hidden transition-all duration-300 ${
         mobileOpen ? "translate-x-0" : "translate-x-full"
       } xl:translate-x-0 ${
         isLight ? "bg-white border-[#E5E4E7]" : "bg-linear-to-b from-[#030712] to-black border-[#263241]/60"
-=======
-      aria-hidden={!open}
-      inert={!open}
-      className={`fixed inset-y-0 right-0 z-40 h-full w-[92vw] max-w-85 shrink-0 overflow-hidden transition-all duration-300 ease-out md:static md:z-auto md:max-w-none ${
-        open ? "translate-x-0 border-l shadow-2xl md:w-85 md:shadow-none" : "invisible translate-x-full md:visible md:w-0 md:translate-x-0"
-      } ${
-        isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]/60"
->>>>>>> Stashed changes
       }`}
     >
       {/* Header */}
@@ -174,7 +165,7 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
                 <span className="text-xs font-medium text-(--accent-readable)">AIVERSE</span>
                 <div
                   className={`rounded-xl rounded-tl-sm px-3 py-2.5 text-sm leading-relaxed border ${
-                    isLight ? "bg-[#F4F7FA] border-[#E5E4E7] text-gray-900" : "bg-gray-950 border-[#1E2D3D] text-[#B8C4D0]"
+                    isLight ? "bg-[#F4F7FA] border-[#E5E4E7] text-gray-900" : "bg-[#0D1420] border-[#1E2D3D] text-[#B8C4D0]"
                   }`}
                 >
                   {msg.text}
@@ -202,7 +193,7 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
               <span className="text-xs font-medium text-(--accent-readable)">AIVERSE</span>
               <div
                 className={`rounded-xl rounded-tl-sm px-3.5 py-3 border flex items-center gap-1 ${
-                  isLight ? "bg-[#F4F7FA] border-[#E5E4E7]" : "bg-gray-950 border-[#1E2D3D]"
+                  isLight ? "bg-[#F4F7FA] border-[#E5E4E7]" : "bg-[#0D1420] border-[#1E2D3D]"
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-(--accent-readable) animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -235,7 +226,7 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
       <div className={`px-4 py-4 border-t shrink-0 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
         <div
           className={`flex items-center gap-2 rounded-xl px-3 py-2.5 border transition-all ${
-            isLight ? "bg-[#F4F7FA]" : "bg-gray-950"
+            isLight ? "bg-[#F4F7FA]" : "bg-[#030712]"
           } ${focused ? "border-(--accent-border) shadow-[0_0_12px_var(--accent-soft)]" : isLight ? "border-[#E5E4E7]" : "border-[#263241]"}`}
         >
           <input
