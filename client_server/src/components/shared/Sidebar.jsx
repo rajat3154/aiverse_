@@ -244,7 +244,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
     <aside
       className={`fixed inset-y-0 left-0 z-40 md:relative md:inset-auto md:z-auto shrink-0 flex flex-col h-full border-r transition-all duration-300 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-linear-to-b from-[#030712] to-black border-[#263241]/60"}`}
+      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]/60"}`}
     >
       <button
         type="button"
@@ -253,7 +253,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         className={`absolute -right-3 top-5 z-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border cursor-pointer transition-colors ${
           isLight
             ? "bg-white border-[#E5E4E7] text-gray-500 hover:bg-black/4"
-            : "bg-[#0B0F17] border-[#263241] text-[#566273] hover:bg-white/5"
+            : "bg-gray-950 border-[#263241] text-[#566273] hover:bg-white/5"
         }`}
       >
         <svg
@@ -323,7 +323,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
           <div
             role="menu"
             className={`absolute bottom-full left-2 z-50 mb-2 border py-1 shadow-2xl ${collapsed ? "w-48" : "right-2"} ${
-              isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241] bg-[#0B0F17] text-white"
+              isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241] bg-gray-950 text-white"
             }`}
           >
             <button
