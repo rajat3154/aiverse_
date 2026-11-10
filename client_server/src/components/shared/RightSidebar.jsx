@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 const initialMessages = [
   { role: "ai", text: "Hello! I'm your AIVERSE Copilot. I can help you build workflows, connect LLMs and configure AI agents." },
@@ -39,13 +38,11 @@ const SendIcon = () => (
   </svg>
 );
 
-// Below xl the copilot is an off-canvas drawer (mobileOpen); from xl up it sits in the layout and can collapse.
-export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
+// The copilot is a sidebar that only exists while the floating chatbot button has opened it. From md up it is a real
+// layout column (the page makes room for it); on phones there is no room beside the page, so it slides over it instead.
+export default function RightSidebar({ open = false, onClose }) {
   const theme = useTheme();
-  const isWide = useMediaQuery("(min-width: 1280px)");
   const isLight = theme.rightSidebarTheme === "light";
-  const [collapsedPreference, setCollapsed] = useState(false);
-  const collapsed = collapsedPreference && isWide;
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [focused, setFocused] = useState(false);
@@ -78,40 +75,18 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
     }
   };
 
-  if (collapsed) {
-    return (
-      <div
-        className={`flex flex-col h-full w-13 border-l items-center py-4 gap-4 transition-all duration-300 ${
-          isLight ? "bg-white border-[#E5E4E7]" : "bg-[#030712] border-[#263241]/60"
-        }`}
-      >
-        <button
-          onClick={() => setCollapsed(false)}
-          aria-label="Expand copilot"
-          className="w-9 h-9 flex items-center justify-center rounded-lg border cursor-pointer transition-colors bg-(--accent-soft) border-(--accent-border) text-(--accent-readable)"
-        >
-          <div className="rotate-180">
-            <CollapseIcon />
-          </div>
-        </button>
-        <div
-          className={`text-xs tracking-widest font-medium mt-2 rotate-180 ${isLight ? "text-gray-500" : "text-[#566273]"}`}
-          style={{ writingMode: "vertical-rl" }}
-        >
-          COPILOT
-        </div>
-      </div>
-    );
-  }
-
   return (
     <aside
-      className={`fixed inset-y-0 right-0 z-40 xl:relative xl:inset-auto xl:z-auto shrink-0 flex flex-col h-full w-85 max-w-[90vw] border-l overflow-hidden transition-all duration-300 ${
-        mobileOpen ? "translate-x-0" : "translate-x-full"
-      } xl:translate-x-0 ${
+      aria-hidden={!open}
+      inert={!open}
+      className={`fixed inset-y-0 right-0 z-40 h-full w-[92vw] max-w-85 shrink-0 overflow-hidden transition-all duration-300 ease-out md:static md:z-auto md:max-w-none ${
+        open ? "translate-x-0 border-l shadow-2xl md:w-85 md:shadow-none" : "invisible translate-x-full md:visible md:w-0 md:translate-x-0"
+      } ${
         isLight ? "bg-white border-[#E5E4E7]" : "bg-linear-to-b from-[#030712] to-black border-[#263241]/60"
       }`}
     >
+      {/* Fixed-width inner column so the text does not reflow while the sidebar animates open */}
+      <div className="flex h-full w-85 max-w-[92vw] flex-col">
       {/* Header */}
       <div className={`flex items-center gap-3 px-4 py-4 border-b shrink-0 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-(--accent-soft) border border-(--accent-border)">
@@ -136,9 +111,9 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
             <ThemeIcon />
           </button>
           <button
-            onClick={() => (isWide ? setCollapsed(true) : onMobileClose?.())}
-            title="Collapse"
-            aria-label="Collapse copilot"
+            onClick={() => onClose?.()}
+            title="Close"
+            aria-label="Close copilot"
             className={`flex items-center justify-center w-7 h-7 rounded cursor-pointer border-0 transition-colors bg-transparent ${
               isLight ? "text-gray-500 hover:bg-black/4" : "text-[#566273] hover:bg-white/5"
             }`}
@@ -254,6 +229,7 @@ export default function RightSidebar({ mobileOpen = false, onMobileClose }) {
           <span className={`text-xs ${isLight ? "text-gray-500" : "text-[#566273]"}`}>ENTER to send</span>
           <span className={`text-xs ${isLight ? "text-gray-500" : "text-[#566273]"}`}>GPT-4o · v2.1</span>
         </div>
+      </div>
       </div>
     </aside>
   );
