@@ -141,3 +141,11 @@ export const authFetch = async (path, options = {}) => {
   }
   return res;
 };
+
+/** The signed-in user's own profile (name, photo, email), shown in the sidebar footer. */
+export const getProfile = async () => {
+  const res = await authFetch(`${API_ROUTES.auth}/me`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(data?.message || `Request failed (HTTP ${res.status})`, res.status);
+  return data;
+};

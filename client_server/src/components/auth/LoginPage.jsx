@@ -49,8 +49,8 @@ const LoginPage = () => {
 
     setSubmitting(true);
     try {
-      await login(values.identifier, values.password);
-      window.location.replace("/");
+      const session = await login(values.identifier, values.password);
+      window.location.replace(session.user.role === "MASTER" ? "/master" : "/");
     } catch (error) {
       setServerError(error.message || "Could not sign you in. Please try again.");
       setSubmitting(false);

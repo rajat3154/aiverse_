@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aiverse.gateway.authentication.dtos.requests.LoginRequest;
 import com.aiverse.gateway.authentication.dtos.responses.AuthResponse;
+import com.aiverse.gateway.authentication.dtos.responses.ProfileResponse;
 import com.aiverse.gateway.authentication.dtos.responses.RefreshTokenResponse;
 import com.aiverse.gateway.authentication.entity.User;
 import com.aiverse.gateway.authentication.exceptions.InvalidCredentialsException;
@@ -69,6 +70,20 @@ public class AuthService {
             } catch (RuntimeException exception) {
                   log.error(message("auth.login.failed", identifier, exception.getMessage(),
                               System.currentTimeMillis() - startedAt), exception);
+                  throw exception;
+            }
+      }
+
+      @Transactional(readOnly = true)
+      public ProfileResponse profile(UUID userId) {
+            try {
+                  User user = userRepository.findById(userId).filter(User::isEnabled)
+                              .orElseThrow(() -> new InvalidTokenException(message("auth.token.access.invalid")));
+                  log.debug(message("auth.profile.completed", userId));
+                  return new ProfileResponse(user.getTenantId(), user.getFirstName(), user.getLastName(), user.getEmail(),
+                              user.getUsername(), user.getRole(), user.getProfilePhoto());
+            } catch (InvalidTokenException exception) {
+                  log.warn(message("auth.profile.failed", userId, exception.getMessage()));
                   throw exception;
             }
       }
