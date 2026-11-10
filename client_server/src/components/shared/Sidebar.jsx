@@ -13,27 +13,8 @@ const Icon = ({ size = 15, children }) => (
 const HomeIcon = () => (
   <Icon><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></Icon>
 );
-const LLMIcon = () => (
-  <Icon><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></Icon>
-);
-const ToolsIcon = () => (
-  <Icon><path d="M14.7 6.3a4 4 0 005.4 5.4l-9.4 9.4a2.1 2.1 0 01-3-3l9.4-9.4a4 4 0 00-2.4-2.4z" /></Icon>
-);
-const AgentIcon = () => (
-  <Icon>
-    <rect x="4" y="8" width="16" height="12" rx="2" /><path d="M12 8V4" /><circle cx="12" cy="3" r="1" /><circle cx="9" cy="14" r="1" /><circle cx="15" cy="14" r="1" />
-  </Icon>
-);
-const PromptsIcon = () => (
-  <Icon><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /><line x1="8" y1="9" x2="16" y2="9" /><line x1="8" y1="13" x2="13" y2="13" /></Icon>
-);
-const WorkflowsIcon = () => (
-  <Icon>
-    <rect x="3" y="3" width="6" height="6" rx="1" /><rect x="15" y="15" width="6" height="6" rx="1" /><rect x="15" y="3" width="6" height="6" rx="1" /><path d="M9 6h6M18 9v6M6 9v3a3 3 0 003 3h6" />
-  </Icon>
-);
-const LensIcon = () => (
-  <Icon><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Icon>
+const KeyIcon = () => (
+  <Icon><circle cx="8" cy="15" r="4" /><path d="M11 12l9-9" /><path d="M16 7l3 3" /></Icon>
 );
 const SettingsIconSmall = () => (
   <Icon size={14}>
@@ -57,23 +38,15 @@ const ChevronIcon = ({ open }) => (
 );
 
 // Static navigation: items only switch the highlighted entry, there is no routing.
+// Which sidebar item is highlighted for a page route
+const ROUTE_ITEMS = { "/master": "master-users", "/credentials": "credentials" };
+
 const navGroups = [
   {
     title: "AI SYSTEMS",
     items: [
       { id: "home", label: "Home", icon: <HomeIcon />, href: "/" },
-      { id: "llm", label: "LLM", icon: <LLMIcon />, children: [{ id: "llm-models", label: "Models" }] },
-      {
-        id: "tools", label: "Tools", icon: <ToolsIcon />,
-        children: [
-          { id: "tools-composio", label: "Composio" },
-          { id: "tools-mcp-toolbox", label: "MCP Toolbox" },
-        ],
-      },
-      { id: "prompts", label: "Prompts", icon: <PromptsIcon /> },
-      { id: "agents", label: "Agents", icon: <AgentIcon /> },
-      { id: "workflows", label: "Workflows", icon: <WorkflowsIcon /> },
-      { id: "lens", label: "Lens", icon: <LensIcon /> },
+      { id: "credentials", label: "Credentials", icon: <KeyIcon />, href: "/credentials" },
     ],
   },
 ];
@@ -82,11 +55,8 @@ const UsersIcon = () => (
   <Icon><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a5 5 0 0110 0v1" /><path d="M16 5a3 3 0 010 6M18 20v-1a5 5 0 00-3-4.6" /></Icon>
 );
 
-// Only shown to the master account; the gateway independently rejects /users calls from anyone else.
-const masterGroup = {
-  title: "MASTER",
-  items: [{ id: "master-users", label: "Users", icon: <UsersIcon />, href: "/master" }],
-};
+// Only shown to the master account, right under Home; the gateway independently rejects /users calls from anyone else.
+const masterItem = { id: "master-users", label: "Users", icon: <UsersIcon />, href: "/master" };
 
 // Below md the sidebar is an off-canvas drawer (mobileOpen); from md up it sits in the layout and can collapse to icons.
 export default function Sidebar({ mobileOpen = false, onMobileClose }) {
@@ -95,7 +65,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const [collapsedPreference, setCollapsed] = useState(false);
   const collapsed = collapsedPreference && isDesktop;
   const isMaster = getSession()?.user?.role === "MASTER";
-  const [activeItem, setActiveItem] = useState(window.location.pathname === "/master" ? "master-users" : "home");
+  const [activeItem, setActiveItem] = useState(ROUTE_ITEMS[window.location.pathname] ?? "home");
   const [hoveredItem, setHoveredItem] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -244,7 +214,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
     <aside
       className={`fixed inset-y-0 left-0 z-40 md:relative md:inset-auto md:z-auto shrink-0 flex flex-col h-full border-r transition-all duration-300 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-gray-950 border-[#263241]/60"}`}
+      } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-black border-[#263241]/60"}`}
     >
       <button
         type="button"
@@ -253,7 +223,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
         className={`absolute -right-3 top-5 z-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border cursor-pointer transition-colors ${
           isLight
             ? "bg-white border-[#E5E4E7] text-gray-500 hover:bg-black/4"
-            : "bg-gray-950 border-[#263241] text-[#566273] hover:bg-white/5"
+            : "bg-black border-[#263241] text-[#566273] hover:bg-white/5"
         }`}
       >
         <svg
@@ -305,15 +275,16 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 scrollable">
-        {navGroups.map(renderGroup)}
+        {navGroups
+          .map((group) => ({
+            ...group,
+            // the master account gets Users right below Home and has no credentials page
+            items: isMaster
+              ? group.items.filter((item) => item.id !== "credentials").flatMap((item) => (item.id === "home" ? [item, masterItem] : [item]))
+              : group.items,
+          }))
+          .map(renderGroup)}
       </nav>
-
-      {/* The master group is pinned to the bottom of the sidebar, above Sign out, so it is always in reach */}
-      {isMaster && (
-        <div className={`shrink-0 border-t pt-2 pb-1 [&>div]:mb-1 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
-          {renderGroup(masterGroup)}
-        </div>
-      )}
 
       {/* Signed-in user: photo, name and email; clicking opens Settings and Log out */}
       <div ref={userRef} className={`relative border-t ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
@@ -323,7 +294,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
           <div
             role="menu"
             className={`absolute bottom-full left-2 z-50 mb-2 border py-1 shadow-2xl ${collapsed ? "w-48" : "right-2"} ${
-              isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241] bg-gray-950 text-white"
+              isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241] bg-black text-white"
             }`}
           >
             <button
