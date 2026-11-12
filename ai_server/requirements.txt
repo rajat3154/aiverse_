@@ -16,7 +16,7 @@ redis
 jsonschema
 langchain-openai
 langchain-groq
+langchain-anthropic
 langchain-google-genai
 langchain-sarvam
 langchain-nvidia-ai-endpoints
-litellm
