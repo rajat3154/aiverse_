@@ -1,0 +1,490 @@
+
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "GROQ",
+    "name": "Groq",
+    "slug": "groq",
+    "description": "High-speed inference for open-source and hosted language models.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "logo": null,
+    "website": "https://groq.com",
+    "tags": ["llm", "chat", "fast-inference", "reasoning", "open-models"]
+  },
+  "implementation": {
+    "module": "groq",
+    "class": "GroqProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "Groq",
+    "regions": [],
+    "pricing_url": "https://groq.com/pricing",
+    "support_url": "https://console.groq.com/docs",
+    "release_notes_url": "https://console.groq.com/docs/changelog",
+    "custom": {}
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": false,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "audio_input": false,
+    "audio_output": false,
+    "video_input": false,
+    "reasoning": true,
+    "vision": true,
+    "batch": false
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": ["api_key"],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "Groq API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Your Groq Cloud API key."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection",
+        "description": "Groq API connection settings.",
+        "order": 1
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "default": null,
+        "placeholder": "https://api.groq.com/openai/v1",
+        "help_text": "Optional custom Groq-compatible API endpoint.",
+        "group": "connection",
+        "order": 1,
+        "advanced": true
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "operation": "discover_models",
+      "method": "GET",
+      "path": "/models",
+      "authentication": "bearer",
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "id"
+      }
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "llama-3.3-70b-versatile",
+          "name": "Llama 3.3 70B Versatile",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "llama-3.1-8b-instant",
+          "name": "Llama 3.1 8B Instant",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "openai/gpt-oss-120b",
+          "name": "GPT OSS 120B",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "reasoning": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "name": "GPT OSS 20B",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "reasoning": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "qwen/qwen3-32b",
+          "name": "Qwen 3 32B",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "reasoning": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": ["id", "name"],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation",
+        "description": "Controls response generation.",
+        "order": 1
+      },
+      {
+        "key": "sampling",
+        "label": "Sampling",
+        "description": "Controls token selection and randomness.",
+        "order": 2
+      },
+      {
+        "key": "reasoning",
+        "label": "Reasoning",
+        "description": "Controls reasoning behavior on supported models.",
+        "order": 3
+      },
+      {
+        "key": "output",
+        "label": "Output Controls",
+        "description": "Controls response formatting and stopping behavior.",
+        "order": 4
+      },
+      {
+        "key": "advanced",
+        "label": "Advanced",
+        "description": "Advanced API and request settings.",
+        "order": 5
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0.7,
+        "minimum": 0,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Controls randomness. Higher values produce more varied responses. Model compatibility may vary.",
+        "group": "sampling",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "minimum": 1,
+        "help_text": "Maximum number of tokens generated in the response.",
+        "group": "generation",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 1,
+        "minimum": 0,
+        "maximum": 1,
+        "step": 0.05,
+        "help_text": "Controls nucleus sampling. Lower values restrict token selection to more probable choices.",
+        "group": "sampling",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "frequency_penalty",
+        "label": "Frequency Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "minimum": -2,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Penalizes tokens based on how frequently they have appeared.",
+        "group": "sampling",
+        "order": 3,
+        "supported": true
+      },
+      {
+        "key": "presence_penalty",
+        "label": "Presence Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "minimum": -2,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Penalizes tokens that have already appeared, encouraging new topics.",
+        "group": "sampling",
+        "order": 4,
+        "supported": true
+      },
+      {
+        "key": "n",
+        "label": "Number of Responses",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "minimum": 1,
+        "maximum": 128,
+        "help_text": "Number of completion choices generated for each input.",
+        "group": "generation",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "seed",
+        "label": "Random Seed",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "help_text": "Best-effort deterministic sampling. Identical seeds do not guarantee identical outputs.",
+        "group": "sampling",
+        "order": 5,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "reasoning_effort",
+        "label": "Reasoning Effort",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": null,
+        "options": [
+          {"label": "Minimal", "value": "minimal"},
+          {"label": "Low", "value": "low"},
+          {"label": "Medium", "value": "medium"},
+          {"label": "High", "value": "high"}
+        ],
+        "help_text": "Controls reasoning effort on supported reasoning models. Accepted values depend on the selected model.",
+        "group": "reasoning",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "reasoning_format",
+        "label": "Reasoning Output Format",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": "hidden",
+        "options": [
+          {"label": "Hidden", "value": "hidden"},
+          {"label": "Parsed", "value": "parsed"},
+          {"label": "Raw", "value": "raw"}
+        ],
+        "help_text": "Controls how reasoning content is returned. Hidden returns only the final answer; parsed separates reasoning into metadata; raw includes reasoning in the response.",
+        "group": "reasoning",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "service_tier",
+        "label": "Service Tier",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": "on_demand",
+        "options": [
+          {"label": "On Demand", "value": "on_demand"},
+          {"label": "Flex", "value": "flex"},
+          {"label": "Auto", "value": "auto"}
+        ],
+        "help_text": "Selects the Groq processing tier. Availability and behavior depend on the account and model.",
+        "group": "advanced",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "stop",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "One or more sequences that tell the model when to stop generating.",
+        "group": "output",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "response_format",
+        "label": "Response Format",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Optional structured output configuration, such as JSON mode or a supported JSON schema.",
+        "group": "output",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "logit_bias",
+        "label": "Logit Bias",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Adjusts the likelihood of specific token IDs appearing in the output. Model support may vary.",
+        "group": "advanced",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "logprobs",
+        "label": "Return Log Probabilities",
+        "type": "boolean",
+        "input": "switch",
+        "required": false,
+        "default": false,
+        "help_text": "Requests token log probabilities where supported by the model.",
+        "group": "output",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "minimum": 0,
+        "maximum": 10,
+        "help_text": "Maximum number of retries for failed API requests.",
+        "group": "advanced",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": false,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "groq",
+    "color": "#F55036",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "Groq",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": ["advanced"],
+    "badges": ["Fast Inference", "Cloud"]
+  },
+  "documentation": {
+    "official": "https://console.groq.com/docs",
+    "api_reference": "https://console.groq.com/docs/api-reference",
+    "models": "https://console.groq.com/docs/models",
+    "pricing": "https://groq.com/pricing"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-groq",
+      "minimum_version": "1.0.0",
+      "maximum_version": null
+    }
+  }
+}

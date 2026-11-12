@@ -1,0 +1,463 @@
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "GEMINI",
+    "name": "Google Gemini",
+    "slug": "gemini",
+    "description": "Google Gemini models for chat, multimodal generation, reasoning and embeddings.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "logo": null,
+    "website": "https://ai.google.dev",
+    "tags": [
+      "llm",
+      "chat",
+      "reasoning",
+      "embeddings",
+      "multimodal"
+    ]
+  },
+  "implementation": {
+    "module": "gemini",
+    "class": "GeminiProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "Google",
+    "regions": [],
+    "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
+    "support_url": "https://ai.google.dev/gemini-api/docs/troubleshooting",
+    "release_notes_url": "https://ai.google.dev/gemini-api/docs/changelog",
+    "custom": {}
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "image_generation": false,
+    "audio_input": true,
+    "audio_output": true,
+    "video_input": true,
+    "reasoning": true,
+    "vision": true,
+    "embeddings": true,
+    "batch": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": [
+      "api_key"
+    ],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "Google AI API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Your Google AI Studio API key."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection Settings",
+        "order": 1,
+        "description": "Google Gemini API connection settings."
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "default": null,
+        "group": "connection",
+        "order": 1,
+        "placeholder": "https://generativelanguage.googleapis.com",
+        "help_text": "Optional custom Gemini-compatible API endpoint.",
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "api_version",
+        "label": "API Version",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": "v1beta",
+        "options": [
+          {
+            "label": "v1beta",
+            "value": "v1beta"
+          },
+          {
+            "label": "v1",
+            "value": "v1"
+          }
+        ],
+        "group": "connection",
+        "order": 2,
+        "help_text": "Gemini API version used for requests.",
+        "advanced": true,
+        "supported": true
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "operation": "discover_models",
+      "method": "GET",
+      "path": "/v1beta/models?pageSize=100",
+      "authentication": "x-goog-api-key",
+      "response": {
+        "models_path": "models",
+        "id_field": "name",
+        "name_field": "displayName",
+        "id_strip_prefix": "models/"
+      }
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "description": "Fast model for general-purpose tasks.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "image_input": true,
+            "reasoning": true
+          },
+          "context_window": 1048576,
+          "max_output_tokens": 65536,
+          "input_modalities": [
+            "text",
+            "image",
+            "audio",
+            "video"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        },
+        {
+          "id": "gemini-2.5-pro",
+          "name": "Gemini 2.5 Pro",
+          "description": "Advanced reasoning and complex task model.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "image_input": true,
+            "reasoning": true
+          },
+          "context_window": 1048576,
+          "max_output_tokens": 65536,
+          "input_modalities": [
+            "text",
+            "image",
+            "audio",
+            "video"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": [
+      "id",
+      "name"
+    ],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation",
+        "description": "Controls response length and creativity.",
+        "order": 1
+      },
+      {
+        "key": "reasoning",
+        "label": "Reasoning",
+        "description": "Controls reasoning behavior on supported models.",
+        "order": 2
+      },
+      {
+        "key": "output",
+        "label": "Output Format",
+        "description": "Controls response formatting.",
+        "order": 3
+      },
+      {
+        "key": "safety",
+        "label": "Safety Settings",
+        "description": "Controls content safety filtering.",
+        "order": 4
+      },
+      {
+        "key": "advanced",
+        "label": "Advanced",
+        "description": "Advanced API request parameters.",
+        "order": 5
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": null,
+        "step": 0.1,
+        "group": "generation",
+        "order": 1,
+        "help_text": "Controls randomness. Higher values produce more varied responses.",
+        "supported": true,
+        "minimum": 0,
+        "maximum": 2
+      },
+      {
+        "key": "max_output_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "group": "generation",
+        "order": 2,
+        "help_text": "Maximum number of tokens generated in the response.",
+        "supported": true,
+        "minimum": 1,
+        "maximum": 65536
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": null,
+        "step": 0.01,
+        "group": "generation",
+        "order": 3,
+        "help_text": "Controls nucleus sampling. Lower values restrict token selection to more probable choices.",
+        "supported": true,
+        "minimum": 0,
+        "maximum": 1
+      },
+      {
+        "key": "top_k",
+        "label": "Top K",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "group": "generation",
+        "order": 4,
+        "help_text": "Restricts sampling to the K most probable tokens.",
+        "supported": true,
+        "advanced": true,
+        "minimum": 1,
+        "maximum": 100
+      },
+      {
+        "key": "stop_sequences",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "default": [],
+        "group": "generation",
+        "order": 5,
+        "help_text": "Sequences that tell the model when to stop generating.",
+        "supported": true,
+        "advanced": true
+      },
+      {
+        "key": "candidate_count",
+        "label": "Candidate Count",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "group": "generation",
+        "order": 6,
+        "help_text": "Number of response candidates generated for each input.",
+        "supported": true,
+        "advanced": true,
+        "minimum": 1,
+        "maximum": 8
+      },
+      {
+        "key": "thinking_config",
+        "label": "Thinking Configuration",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "group": "reasoning",
+        "order": 1,
+        "help_text": "Thinking configuration for supported reasoning models, as a JSON object.",
+        "supported": true,
+        "advanced": true
+      },
+      {
+        "key": "response_mime_type",
+        "label": "Response Format",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": "text/plain",
+        "options": [
+          {
+            "label": "Text",
+            "value": "text/plain"
+          },
+          {
+            "label": "JSON",
+            "value": "application/json"
+          }
+        ],
+        "group": "output",
+        "order": 1,
+        "help_text": "Format of the generated response.",
+        "supported": true
+      },
+      {
+        "key": "response_schema",
+        "label": "Response Schema",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "group": "output",
+        "order": 2,
+        "help_text": "JSON schema the response must follow when the response format is JSON.",
+        "supported": true,
+        "advanced": true
+      },
+      {
+        "key": "safety_settings",
+        "label": "Safety Settings",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "group": "safety",
+        "order": 1,
+        "help_text": "Safety filter thresholds, as a JSON array.",
+        "supported": true,
+        "advanced": true
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "group": "advanced",
+        "order": 1,
+        "help_text": "Maximum number of retries for failed API requests.",
+        "supported": true,
+        "advanced": true,
+        "minimum": 0,
+        "maximum": 10
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": true,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "gemini",
+    "color": "#4285F4",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "Google Gemini",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": [
+      "advanced"
+    ],
+    "badges": [
+      "Multimodal",
+      "Cloud"
+    ]
+  },
+  "documentation": {
+    "official": "https://ai.google.dev/gemini-api/docs",
+    "api_reference": "https://ai.google.dev/api",
+    "models": "https://ai.google.dev/gemini-api/docs/models",
+    "pricing": "https://ai.google.dev/gemini-api/docs/pricing"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-google-genai",
+      "minimum_version": "4.0.0",
+      "maximum_version": null
+    }
+  }
+}

@@ -13,7 +13,11 @@ from aiverse_logging import (
 )
 from configurations.messages import get_message
 from configurations.grpc.server.grpc_server import start_grpc_server, stop_grpc_server
-from configurations.databases.database import close_database, init_database
+from configurations.databases.database import AsyncSessionLocal, close_database, init_database
+from modules.llm_providers.loader import ProviderLoader
+from modules.llm_providers.registry import provider_registry
+from modules.llm_providers.routes import router as llm_providers_router
+from modules.llm_providers.synchronizer import ProviderSynchronizer
 from configurations.rabbitmqs.handlers import handle_ai_request
 from configurations.rabbitmqs.rabbitmq import rabbitmq
 from configurations.cache.redis import redis_manager
@@ -34,19 +38,57 @@ configure_logging("ai_server")
 log = get_logger("aiverse.ai_server")
 log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM", action="STARTUP", outcome="COMPLETED")
 
+provider_synchronizer = ProviderSynchronizer()
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    await init_database()
-    await redis_manager.connect()
-    initialize_sse()
-    initialize_socketio()
-    initialize_websocket()
+    grpc_server = None
     try:
-        initialize_cloudinary()
-    except Exception:
-        pass 
-    grpc_server = start_grpc_server()
-    try:
+        await init_database()
+
+        # Load provider manifests and synchronize the Spring-owned catalog table.
+        provider_loader = ProviderLoader()
+        loaded_providers = provider_loader.load_all()
+
+        async with AsyncSessionLocal() as session:
+            sync_result = await provider_synchronizer.synchronize(
+                session,
+                loaded_providers
+            )
+
+        provider_registry.replace_all(loaded_providers)
+
+        log_event(
+            log,
+            "INFO",
+            "LLM provider catalog synchronized",
+            domain="LLM",
+            action="PROVIDER_SYNC",
+            outcome="COMPLETED",
+            context={
+                **sync_result.to_dict(),
+                "registry_count": provider_registry.count()
+            }
+        )
+
+        # Initialize existing services.
+        await redis_manager.connect()
+        initialize_sse()
+        initialize_socketio()
+        initialize_websocket()
+        try:
+            initialize_cloudinary()
+        except Exception:
+            log_event(
+                log,
+                "WARNING",
+                "Cloudinary initialization failed",
+                domain="CLOUDINARY",
+                action="INITIALIZATION",
+                outcome="FAILURE",
+                exc_info=True
+            )
+        grpc_server = start_grpc_server()
         await rabbitmq.connect()
         await rabbitmq.consume(handle_ai_request)
         yield
@@ -54,9 +96,11 @@ async def lifespan(_: FastAPI):
         await shutdown_websocket(websocket_manager)
         await shutdown_socketio()
         shutdown_sse()
-        stop_grpc_server(grpc_server)
+        if grpc_server is not None:
+            stop_grpc_server(grpc_server)
         await rabbitmq.close()
         await redis_manager.close()
+        provider_registry.clear()
         await close_database()
 
 
@@ -127,6 +171,7 @@ async def request_logging_middleware(request, call_next):
 app.include_router(sse_router)
 app.include_router(websocket_router)
 app.include_router(cloudinary_router)
+app.include_router(llm_providers_router)
 app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
 @app.get("/", tags=["Health"])
@@ -143,19 +188,25 @@ async def root():
 async def health():
     rabbitmq_connected = await rabbitmq.health()
     redis_connected = await redis_manager.health()
+    provider_health = provider_registry.health()
     services = {
         "rabbitmq": "connected" if rabbitmq_connected else "disconnected",
         "redis": "connected" if redis_connected else "disconnected",
-    }
-    return {
-        "status": (
-            "healthy"
-            if rabbitmq_connected and (
-                redis_connected or not redis_manager.settings.enabled
-            )
-            else "degraded"
+        "llm_providers": (
+            "connected" if provider_health["initialized"] else "disconnected"
         ),
+    }
+    healthy = (
+        rabbitmq_connected
+        and (
+            redis_connected or not redis_manager.settings.enabled
+        )
+        and provider_health["initialized"]
+    )
+    return {
+        "status": "healthy" if healthy else "degraded",
         "service": "AIVERSE AI Server",
         "services": services,
+        "llm_providers": provider_health,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

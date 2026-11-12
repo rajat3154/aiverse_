@@ -7,3 +7,9 @@ databaseChangeLog:
       file: db/changelog/changes/003-create-oauth-authorization-codes-table.yaml
   - include:
       file: db/changelog/changes/004-create-credentials-table.yaml
+  - include:
+      file: db/changelog/changes/005-create-llm-provider-catalog.yaml
+  - include:
+      file: db/changelog/changes/006-add-llm-provider-logo.yaml
+  - include:
+      file: db/changelog/changes/007-create-llm-provider-configurations.yaml

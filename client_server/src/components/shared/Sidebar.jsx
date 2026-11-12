@@ -16,6 +16,9 @@ const HomeIcon = () => (
 const KeyIcon = () => (
   <Icon><circle cx="8" cy="15" r="4" /><path d="M11 12l9-9" /><path d="M16 7l3 3" /></Icon>
 );
+const ProvidersIcon = () => (
+  <Icon><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" /></Icon>
+);
 const SettingsIconSmall = () => (
   <Icon size={14}>
     <circle cx="12" cy="12" r="3" />
@@ -39,7 +42,7 @@ const ChevronIcon = ({ open }) => (
 
 // Static navigation: items only switch the highlighted entry, there is no routing.
 // Which sidebar item is highlighted for a page route
-const ROUTE_ITEMS = { "/master": "master-users", "/credentials": "credentials" };
+const ROUTE_ITEMS = { "/master": "master-users", "/credentials": "credentials", "/llm-providers": "llm-providers" };
 
 const navGroups = [
   {
@@ -47,6 +50,7 @@ const navGroups = [
     items: [
       { id: "home", label: "Home", icon: <HomeIcon />, href: "/" },
       { id: "credentials", label: "Credentials", icon: <KeyIcon />, href: "/credentials" },
+      { id: "llm-providers", label: "LLM Providers", icon: <ProvidersIcon />, href: "/llm-providers" },
     ],
   },
 ];
@@ -62,8 +66,31 @@ const masterItem = { id: "master-users", label: "Users", icon: <UsersIcon />, hr
 export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const theme = useTheme();
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [collapsedPreference, setCollapsed] = useState(false);
+  const [collapsedPreference, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("aiverse.sidebar.collapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("aiverse.sidebar.collapsed", collapsedPreference ? "1" : "0");
+    } catch {
+      /* storage unavailable: the preference just is not remembered */
+    }
+  }, [collapsedPreference]);
   const collapsed = collapsedPreference && isDesktop;
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b" && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        setCollapsed((v) => !v);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
   const isMaster = getSession()?.user?.role === "MASTER";
   const [activeItem, setActiveItem] = useState(ROUTE_ITEMS[window.location.pathname] ?? "home");
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -117,11 +144,14 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
 
   const renderGroup = (group) => (
       <div key={group.title} className="mb-4">
-        {!collapsed && (
-          <div className={`px-4 pb-1 pt-2 text-xs tracking-widest font-medium ${isLight ? "text-gray-500" : "text-[#566273]"}`}>
-            {group.title}
-          </div>
-        )}
+        <div
+          aria-hidden={collapsed}
+          className={`overflow-hidden whitespace-nowrap px-5 text-[11.5px] font-medium transition-[max-height,opacity,padding] duration-300 ${
+            collapsed ? "max-h-0 pb-0 pt-0 opacity-0" : "max-h-8 pb-1.5 pt-2 opacity-100"
+          } ${isLight ? "text-gray-500" : "text-[#566273]"}`}
+        >
+          {group.title}
+        </div>
         {group.items.map((item) => {
           const hasChildren = item.children?.length > 0;
           const isExpanded = expandedItem === item.id;
@@ -144,11 +174,12 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
               <button
                 type="button"
                 onClick={handleClick}
+                title={collapsed ? item.label : undefined}
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
                 onMouseEnter={() => setHoveredItem(item.id)}
                 onMouseLeave={() => setHoveredItem(null)}
-                className={`relative flex items-center gap-3 rounded-lg mx-2 my-px cursor-pointer border-0 bg-transparent transition-colors duration-150 w-[calc(100%-16px)] ${
-                  collapsed ? "py-2.5 px-0 justify-center" : "py-2.5 px-4 justify-start"
-                } ${
+                className={`relative flex items-center justify-start rounded-lg mx-2 my-px cursor-pointer border-0 bg-transparent outline-none transition-colors duration-150 focus-visible:ring-1 focus-visible:ring-(--accent-color) w-[calc(100%-16px)] py-2.5 px-4 ${
                   isActive
                     ? isLight ? "bg-black/4 text-gray-900" : "text-white"
                     : isHovered
@@ -163,7 +194,12 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
                 <span style={{ color: isActive || isHovered ? "var(--accent-color)" : isLight ? "#64748B" : "#566273" }}>
                   {item.icon}
                 </span>
-                {!collapsed && <span className="text-sm font-medium flex-1 text-left">{item.label}</span>}
+                <span
+                  aria-hidden={collapsed}
+                  className={`overflow-hidden whitespace-nowrap text-left text-[13.5px] transition-[max-width,opacity,margin] duration-300 ${collapsed ? "ml-0 max-w-0 opacity-0" : "ml-3 max-w-44 flex-1 opacity-100"} ${isActive ? "font-semibold" : "font-medium"}`}
+                >
+                  {item.label}
+                </span>
                 {!collapsed && hasChildren && <ChevronIcon open={isExpanded} />}
               </button>
 
@@ -212,15 +248,16 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 md:relative md:inset-auto md:z-auto shrink-0 flex flex-col h-full border-r transition-all duration-300 ${
+      className={`fixed inset-y-0 left-0 z-40 md:relative md:inset-auto md:z-auto shrink-0 flex flex-col h-full border-r transition-[width,transform] duration-300 ease-in-out ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0 ${collapsed ? "w-16" : "w-68 max-w-[85vw] md:max-w-none"} ${isLight ? "bg-white border-[#E5E4E7]" : "bg-black border-[#263241]/60"}`}
     >
       <button
         type="button"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={`${collapsed ? "Expand" : "Collapse"} sidebar (Ctrl+B)`}
         onClick={() => setCollapsed((v) => !v)}
-        className={`absolute -right-3 top-5 z-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border cursor-pointer transition-colors ${
+        className={`absolute -right-3 top-5 z-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border cursor-pointer outline-none transition-colors focus-visible:ring-1 focus-visible:ring-(--accent-color) ${
           isLight
             ? "bg-white border-[#E5E4E7] text-gray-500 hover:bg-black/4"
             : "bg-black border-[#263241] text-[#566273] hover:bg-white/5"
@@ -240,7 +277,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
       </button>
 
       {/* Logo */}
-      <div className={`flex items-center gap-3 px-4 py-4 border-b shrink-0 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
+      <div className={`flex items-center px-4 py-4 border-b shrink-0 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
         <div className="relative shrink-0 w-8 h-8 flex items-center justify-center">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <rect x="1" y="1" width="30" height="30" rx="6" fill="#030712" stroke="#263241" strokeWidth="1" />
@@ -260,17 +297,15 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
           </svg>
         </div>
 
-        {!collapsed && (
-          <div className="flex items-baseline gap-0.5 font-sans">
-            <span className={`text-lg font-bold tracking-wider ${isLight ? "text-gray-900" : "text-white"}`}>AI</span>
-            <span
-              className="text-lg font-bold tracking-wider bg-clip-text text-transparent"
-              style={{ backgroundImage: "var(--accent-paint)" }}
-            >
-              VERSE
-            </span>
-          </div>
-        )}
+        <div
+          aria-hidden={collapsed}
+          className={`flex items-baseline gap-0.5 overflow-hidden whitespace-nowrap font-sans transition-[max-width,opacity,margin] duration-300 ${collapsed ? "ml-0 max-w-0 opacity-0" : "ml-3 max-w-40 opacity-100"}`}
+        >
+          <span className={`text-lg font-semibold tracking-wider ${isLight ? "text-gray-900" : "text-white"}`}>AI</span>
+          <span className="text-lg font-semibold tracking-wider bg-clip-text text-transparent" style={{ backgroundImage: "var(--accent-paint)" }}>
+            VERSE
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -334,7 +369,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
             setSettingsOpen(false);
             setUserMenuOpen((v) => !v);
           }}
-          className={`flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-3 py-3 text-left transition-colors ${collapsed ? "justify-center px-0" : ""} ${
+          className={`flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-3.5 py-3 text-left transition-colors ${
             isLight ? "hover:bg-black/3" : "hover:bg-white/3"
           }`}
         >

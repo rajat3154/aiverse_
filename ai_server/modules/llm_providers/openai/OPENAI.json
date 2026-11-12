@@ -1,0 +1,539 @@
+
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "OPENAI",
+    "name": "OpenAI",
+    "slug": "openai",
+    "description": "OpenAI models for chat, reasoning, multimodal generation, and embeddings.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "logo": null,
+    "website": "https://openai.com",
+    "tags": ["llm", "chat", "reasoning", "embeddings", "multimodal"]
+  },
+  "implementation": {
+    "module": "openai",
+    "class": "OpenAIProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "OpenAI",
+    "regions": [],
+    "pricing_url": "https://openai.com/api/pricing/",
+    "support_url": "https://help.openai.com/",
+    "release_notes_url": "https://platform.openai.com/docs/changelog",
+    "custom": {}
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": true,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "audio_input": true,
+    "audio_output": true,
+    "video_input": false,
+    "reasoning": true,
+    "vision": true,
+    "batch": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": ["api_key"],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "OpenAI API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Your OpenAI API key."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection",
+        "description": "OpenAI API connection settings.",
+        "order": 1
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "default": null,
+        "placeholder": "https://api.openai.com/v1",
+        "help_text": "Optional custom OpenAI-compatible API endpoint.",
+        "group": "connection",
+        "order": 1,
+        "advanced": true
+      },
+      {
+        "key": "organization",
+        "label": "Organization ID",
+        "type": "string",
+        "input": "text",
+        "required": false,
+        "default": null,
+        "placeholder": "org-...",
+        "help_text": "Your OpenAI organization identifier.",
+        "group": "connection",
+        "order": 2,
+        "advanced": true
+      },
+      {
+        "key": "project",
+        "label": "Project ID",
+        "type": "string",
+        "input": "text",
+        "required": false,
+        "default": null,
+        "placeholder": "proj_...",
+        "help_text": "Your OpenAI project identifier.",
+        "group": "connection",
+        "order": 3,
+        "advanced": true
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "operation": "discover_models",
+      "method": "GET",
+      "path": "/v1/models",
+      "authentication": "bearer",
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "id"
+      }
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "gpt-4.1",
+          "name": "GPT-4.1",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "vision": true
+          },
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "gpt-4.1-mini",
+          "name": "GPT-4.1 Mini",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "vision": true
+          },
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "gpt-4.1-nano",
+          "name": "GPT-4.1 Nano",
+          "capabilities": {
+            "chat": true,
+            "streaming": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "text-embedding-3-small",
+          "name": "Text Embedding 3 Small",
+          "capabilities": {
+            "embeddings": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["embeddings"]
+        },
+        {
+          "id": "text-embedding-3-large",
+          "name": "Text Embedding 3 Large",
+          "capabilities": {
+            "embeddings": true
+          },
+          "input_modalities": ["text"],
+          "output_modalities": ["embeddings"]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": ["id", "name"],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation",
+        "description": "Controls the generated response.",
+        "order": 1
+      },
+      {
+        "key": "sampling",
+        "label": "Sampling",
+        "description": "Controls how the model selects its output tokens.",
+        "order": 2
+      },
+      {
+        "key": "reasoning",
+        "label": "Reasoning",
+        "description": "Controls reasoning behavior on supported models.",
+        "order": 3
+      },
+      {
+        "key": "output",
+        "label": "Output Controls",
+        "description": "Controls response formatting and token probability information.",
+        "order": 4
+      },
+      {
+        "key": "streaming",
+        "label": "Streaming",
+        "description": "Controls streaming behavior and usage reporting.",
+        "order": 5
+      },
+      {
+        "key": "advanced",
+        "label": "Advanced",
+        "description": "Advanced API request parameters.",
+        "order": 6
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 1,
+        "minimum": 0,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Controls randomness. Higher values produce more varied responses. Some reasoning models do not support changing temperature.",
+        "group": "sampling",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "minimum": 1,
+        "help_text": "Maximum number of tokens generated in the response. The available limit depends on the selected model.",
+        "group": "generation",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 1,
+        "minimum": 0,
+        "maximum": 1,
+        "step": 0.05,
+        "help_text": "Controls nucleus sampling. Lower values restrict token selection to more probable choices.",
+        "group": "sampling",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "frequency_penalty",
+        "label": "Frequency Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "minimum": -2,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Reduces the likelihood of tokens according to how frequently they have already appeared.",
+        "group": "sampling",
+        "order": 3,
+        "supported": true
+      },
+      {
+        "key": "presence_penalty",
+        "label": "Presence Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "minimum": -2,
+        "maximum": 2,
+        "step": 0.1,
+        "help_text": "Reduces the likelihood of tokens that have already appeared, encouraging new topics.",
+        "group": "sampling",
+        "order": 4,
+        "supported": true
+      },
+      {
+        "key": "n",
+        "label": "Number of Responses",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "minimum": 1,
+        "maximum": 128,
+        "help_text": "Number of completion choices generated for each input.",
+        "group": "generation",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "seed",
+        "label": "Random Seed",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "help_text": "Best-effort deterministic sampling. Identical seeds do not guarantee identical outputs.",
+        "group": "sampling",
+        "order": 5,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "reasoning_effort",
+        "label": "Reasoning Effort",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": null,
+        "options": [
+          {"label": "Minimal", "value": "minimal"},
+          {"label": "Low", "value": "low"},
+          {"label": "Medium", "value": "medium"},
+          {"label": "High", "value": "high"}
+        ],
+        "help_text": "Controls reasoning effort for supported reasoning models.",
+        "group": "reasoning",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "verbosity",
+        "label": "Response Verbosity",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": null,
+        "options": [
+          {"label": "Low", "value": "low"},
+          {"label": "Medium", "value": "medium"},
+          {"label": "High", "value": "high"}
+        ],
+        "help_text": "Controls the level of detail in responses on supported reasoning models.",
+        "group": "reasoning",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "logprobs",
+        "label": "Return Log Probabilities",
+        "type": "boolean",
+        "input": "switch",
+        "required": false,
+        "default": false,
+        "help_text": "Returns token log probabilities when supported by the model.",
+        "group": "output",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "top_logprobs",
+        "label": "Top Log Probabilities",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "minimum": 0,
+        "maximum": 20,
+        "help_text": "Number of most likely tokens to return at each position. Requires logprobs to be enabled.",
+        "group": "output",
+        "order": 2,
+        "advanced": true,
+        "visible_when": {
+          "logprobs": true
+        },
+        "supported": true
+      },
+      {
+        "key": "stop",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "One or more sequences that tell the model when to stop generating. Model compatibility varies.",
+        "group": "output",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "logit_bias",
+        "label": "Logit Bias",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Adjusts the likelihood of specific token IDs appearing in the output.",
+        "group": "advanced",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "use_responses_api",
+        "label": "Use Responses API",
+        "type": "boolean",
+        "input": "switch",
+        "required": false,
+        "default": null,
+        "help_text": "Selects the OpenAI Responses API instead of the Chat Completions API where supported.",
+        "group": "advanced",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "stream_options",
+        "label": "Stream Options",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Additional streaming request options, such as include_usage.",
+        "group": "streaming",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "stream_usage",
+        "label": "Include Streaming Usage",
+        "type": "boolean",
+        "input": "switch",
+        "required": false,
+        "default": null,
+        "help_text": "Includes token usage metadata in the final streaming chunk when supported by the endpoint.",
+        "group": "streaming",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "minimum": 0,
+        "maximum": 10,
+        "help_text": "Maximum number of retries for failed API requests.",
+        "group": "advanced",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": true,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "openai",
+    "color": "#10A37F",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "OpenAI",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": ["advanced"],
+    "badges": ["Popular", "Cloud"]
+  },
+  "documentation": {
+    "official": "https://platform.openai.com/docs",
+    "api_reference": "https://platform.openai.com/docs/api-reference",
+    "models": "https://platform.openai.com/docs/models",
+    "pricing": "https://openai.com/api/pricing/"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-openai",
+      "minimum_version": "1.0.0",
+      "maximum_version": null
+    }
+  }
+}

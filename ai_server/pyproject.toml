@@ -20,6 +20,8 @@ dependencies = [
     "sqlalchemy[asyncio]",
     "uvicorn>=0.54.0",
     "redis>=8.1.0",
+    "jsonschema>=4.26.0",
+    "langchain-openai>=1.7.4",
 ]
 
 [tool.uv.sources]

@@ -1,0 +1,424 @@
+
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "ANTHROPIC",
+    "name": "Anthropic",
+    "slug": "anthropic",
+    "description": "Claude models for reasoning, coding, multimodal understanding, and agentic applications.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "logo": null,
+    "website": "https://www.anthropic.com",
+    "tags": ["llm", "chat", "claude", "reasoning", "vision", "agents"]
+  },
+  "implementation": {
+    "module": "anthropic",
+    "class": "AnthropicProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "Anthropic",
+    "regions": [],
+    "pricing_url": "https://www.anthropic.com/pricing",
+    "support_url": "https://support.anthropic.com/",
+    "release_notes_url": "https://www.anthropic.com/news",
+    "custom": {}
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": false,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "audio_input": false,
+    "audio_output": false,
+    "video_input": false,
+    "reasoning": true,
+    "vision": true,
+    "batch": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": ["api_key"],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "Anthropic API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Your Anthropic API key."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection",
+        "description": "Anthropic API connection settings.",
+        "order": 1
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "default": null,
+        "placeholder": "https://api.anthropic.com",
+        "help_text": "Optional custom Anthropic-compatible API endpoint.",
+        "group": "connection",
+        "order": 1,
+        "advanced": true
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "operation": "discover_models",
+      "method": "GET",
+      "path": "/v1/models",
+      "authentication": "x-api-key",
+      "headers": {
+        "anthropic-version": "2023-06-01"
+      },
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "display_name"
+      }
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "claude-opus-5-5",
+          "name": "Claude Opus 5.5",
+          "description": "Advanced Claude model for agentic coding and complex knowledge work.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "vision": true,
+            "reasoning": true
+          },
+          "context_window": 1000000,
+          "max_output_tokens": 128000,
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5",
+          "description": "Balanced intelligence and speed for general-purpose applications.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "vision": true,
+            "reasoning": true
+          },
+          "context_window": 1000000,
+          "max_output_tokens": 128000,
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "claude-haiku-5-5",
+          "name": "Claude Haiku 5.5",
+          "description": "Fast Claude model for high-volume and latency-sensitive applications.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "vision": true,
+            "reasoning": true
+          },
+          "context_window": 1000000,
+          "max_output_tokens": 128000,
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        },
+        {
+          "id": "claude-fable-5-2",
+          "name": "Claude Fable 5.2",
+          "description": "Advanced reasoning model for demanding technical and long-horizon agentic tasks.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "vision": true,
+            "reasoning": true
+          },
+          "context_window": 1000000,
+          "max_output_tokens": 128000,
+          "input_modalities": ["text", "image"],
+          "output_modalities": ["text"]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": ["id", "name"],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation",
+        "description": "Controls response generation and output length.",
+        "order": 1
+      },
+      {
+        "key": "sampling",
+        "label": "Sampling",
+        "description": "Controls token selection and randomness.",
+        "order": 2
+      },
+      {
+        "key": "reasoning",
+        "label": "Reasoning",
+        "description": "Controls extended thinking and reasoning effort on supported models.",
+        "order": 3
+      },
+      {
+        "key": "output",
+        "label": "Output Controls",
+        "description": "Controls response formatting and stopping behavior.",
+        "order": 4
+      },
+      {
+        "key": "advanced",
+        "label": "Advanced",
+        "description": "Advanced API request settings.",
+        "order": 5
+      }
+    ],
+    "fields": [
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "minimum": 1,
+        "help_text": "Maximum number of tokens generated in the response. The limit depends on the selected model.",
+        "group": "generation",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 1,
+        "minimum": 0,
+        "maximum": 1,
+        "step": 0.1,
+        "help_text": "Controls randomness. Some newer Claude models do not support non-default sampling values.",
+        "group": "sampling",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": null,
+        "minimum": 0,
+        "maximum": 1,
+        "step": 0.05,
+        "help_text": "Controls nucleus sampling. Some Claude models do not support non-default values. Avoid changing this together with temperature.",
+        "group": "sampling",
+        "order": 2,
+        "supported": true
+      },
+      {
+        "key": "top_k",
+        "label": "Top K",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": null,
+        "minimum": 1,
+        "help_text": "Limits token selection to the top K most likely tokens. Model support varies.",
+        "group": "sampling",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "reasoning_effort",
+        "label": "Reasoning Effort",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": null,
+        "options": [
+          {"label": "Low", "value": "low"},
+          {"label": "Medium", "value": "medium"},
+          {"label": "High", "value": "high"},
+          {"label": "Extra High", "value": "xhigh"}
+        ],
+        "help_text": "Controls reasoning effort on models that support configurable effort. Accepted values depend on the selected model.",
+        "group": "reasoning",
+        "order": 1,
+        "supported": true
+      },
+      {
+        "key": "thinking",
+        "label": "Thinking Configuration",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Advanced Claude thinking configuration. Supported modes and fields depend on the selected model.",
+        "group": "reasoning",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "output_config",
+        "label": "Output Configuration",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Advanced output configuration, including supported effort and format settings.",
+        "group": "reasoning",
+        "order": 3,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "stop_sequences",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Custom sequences that tell Claude when to stop generating.",
+        "group": "output",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "metadata",
+        "label": "Request Metadata",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "default": null,
+        "help_text": "Optional request metadata, such as a user identifier for Anthropic request tracking.",
+        "group": "advanced",
+        "order": 1,
+        "advanced": true,
+        "supported": true
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "minimum": 0,
+        "maximum": 10,
+        "help_text": "Maximum number of retries for failed API requests.",
+        "group": "advanced",
+        "order": 2,
+        "advanced": true,
+        "supported": true
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": false,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "anthropic",
+    "color": "#D97757",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "Anthropic",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": ["advanced"],
+    "badges": ["Claude", "Cloud"]
+  },
+  "documentation": {
+    "official": "https://platform.claude.com/docs",
+    "api_reference": "https://platform.claude.com/docs/en/api",
+    "models": "https://platform.claude.com/docs/en/models/overview",
+    "pricing": "https://www.anthropic.com/pricing"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-anthropic",
+      "minimum_version": "1.0.0",
+      "maximum_version": null
+    }
+  }
+}

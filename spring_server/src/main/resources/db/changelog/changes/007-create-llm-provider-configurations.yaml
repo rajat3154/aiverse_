@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-llm-provider-configurations
+      author: aiverse
+      changes:
+        - createTable:
+            tableName: llm_provider_configurations
+            columns:
+              - column: { name: id, type: UUID, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: provider_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: name, type: VARCHAR(150), constraints: { nullable: false } }
+              - column: { name: credential_id, type: UUID }
+              - column: { name: model, type: VARCHAR(255) }
+              - column: { name: configuration, type: JSONB }
+              - column: { name: parameters, type: JSONB }
+              - column: { name: active, type: BOOLEAN, defaultValueBoolean: false, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: llm_provider_configurations
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: tenant_id
+            constraintName: fk_llm_provider_configurations_user
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: llm_provider_configurations
+            baseColumnNames: provider_id
+            referencedTableName: llm_provider_catalog
+            referencedColumnNames: id
+            constraintName: fk_llm_provider_configurations_provider
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: llm_provider_configurations
+            baseColumnNames: credential_id
+            referencedTableName: credentials
+            referencedColumnNames: id
+            constraintName: fk_llm_provider_configurations_credential
+            onDelete: SET NULL
+        - addUniqueConstraint:
+            tableName: llm_provider_configurations
+            columnNames: user_id, provider_id, name
+            constraintName: uk_llm_provider_configurations_name
+        # at most one active configuration per user and provider
+        - sql:
+            sql: CREATE UNIQUE INDEX uk_llm_provider_configurations_active ON llm_provider_configurations (user_id, provider_id) WHERE active
+      rollback:
+        - dropTable:
+            tableName: llm_provider_configurations

@@ -60,6 +60,7 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                     .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                     .requestMatchers("/api/v1/identity/users", "/api/v1/identity/users/**").hasRole("MASTER")
+                                    .requestMatchers("/api/v1/identity/llm-providers/*/logo").hasRole("MASTER")
                                     .anyRequest().authenticated())
                         .exceptionHandling(handling -> handling
                                     .authenticationEntryPoint((request, response, exception) -> {

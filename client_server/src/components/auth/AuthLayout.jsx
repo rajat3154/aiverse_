@@ -35,7 +35,7 @@ const highlights = [
 const FeatureCard = ({ h, i, light }) => (
   <li
     className={`node-in group flex flex-col border p-5 transition ${
-      light ? "border-[#E5E4E7] bg-white" : "border-[#263241] bg-linear-to-br from-[#101826] to-[#06090F]"
+      light ? "border-[#E5E4E7] bg-white" : "border-[#263241] bg-gray-950"
     } duration-300 hover:-translate-y-0.5 hover:border-(--c) hover:shadow-[0_10px_30px_-10px_var(--c)]`}
     style={{ animationDelay: `${i * 90}ms`, "--c": h.color }}
   >

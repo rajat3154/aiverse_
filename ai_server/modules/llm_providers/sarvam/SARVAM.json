@@ -1,0 +1,379 @@
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "SARVAM",
+    "name": "Sarvam AI",
+    "slug": "sarvam",
+    "description": "Indian AI platform providing multilingual language models with native support for Indian languages.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "logo": null,
+    "website": "https://www.sarvam.ai/",
+    "tags": [
+      "llm",
+      "chat",
+      "reasoning",
+      "multilingual",
+      "indic"
+    ]
+  },
+  "implementation": {
+    "module": "sarvam",
+    "class": "SarvamProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "Sarvam AI",
+    "regions": [
+      "IN"
+    ],
+    "pricing_url": "https://www.sarvam.ai/",
+    "support_url": "https://docs.sarvam.ai/",
+    "custom": {
+      "integration_type": "langchain"
+    }
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": false,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": false,
+    "image_output": false,
+    "audio_input": false,
+    "audio_output": false,
+    "vision": false,
+    "reasoning": true,
+    "multilingual": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": [
+      "api_key"
+    ],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "Sarvam API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Create an API key from the Sarvam dashboard."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection Settings",
+        "order": 1,
+        "description": "Sarvam API connection settings."
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "default": "https://api.sarvam.ai",
+        "group": "connection",
+        "order": 1,
+        "supported": true,
+        "placeholder": "https://api.sarvam.ai",
+        "advanced": true,
+        "help_text": "Optional API endpoint override."
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "operation": "discover_models",
+      "method": "GET",
+      "path": "/v2/models",
+      "authentication": "api-subscription-key",
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "id"
+      }
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "sarvam-105b",
+          "name": "Sarvam 105B",
+          "description": "Flagship multilingual model for reasoning, coding, and agentic workflows.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "reasoning": true,
+            "multilingual": true
+          },
+          "context_window": 131072,
+          "max_output_tokens": 16384,
+          "input_modalities": [
+            "text"
+          ],
+          "output_modalities": [
+            "text"
+          ],
+          "metadata": {
+            "model_family": "sarvam",
+            "availability": "serverless"
+          }
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": [
+      "id",
+      "name"
+    ],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation",
+        "description": "Control response generation.",
+        "order": 1
+      },
+      {
+        "key": "reliability",
+        "label": "Reliability",
+        "description": "Controls retry behavior for transient failures.",
+        "order": 2
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0.5,
+        "step": 0.1,
+        "group": "generation",
+        "order": 1,
+        "supported": true,
+        "help_text": "Controls randomness in generated responses.",
+        "minimum": 0,
+        "maximum": 2
+      },
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2048,
+        "group": "generation",
+        "order": 2,
+        "supported": true,
+        "help_text": "Maximum number of tokens generated in the response. Actual limits depend on the account and model.",
+        "minimum": 1,
+        "maximum": 128000
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 1,
+        "step": 0.05,
+        "group": "generation",
+        "order": 3,
+        "supported": true,
+        "help_text": "Controls nucleus sampling.",
+        "minimum": 0,
+        "maximum": 1
+      },
+      {
+        "key": "frequency_penalty",
+        "label": "Frequency Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "step": 0.1,
+        "group": "generation",
+        "order": 4,
+        "supported": true,
+        "advanced": true,
+        "help_text": "Reduces repeated token usage.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "presence_penalty",
+        "label": "Presence Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "default": 0,
+        "step": 0.1,
+        "group": "generation",
+        "order": 5,
+        "supported": true,
+        "advanced": true,
+        "help_text": "Encourages introducing new topics.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "n",
+        "label": "Number of Responses",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "group": "generation",
+        "order": 6,
+        "supported": true,
+        "advanced": true,
+        "help_text": "Sarvam chat completion currently supports one response per request.",
+        "minimum": 1,
+        "maximum": 1
+      },
+      {
+        "key": "stop",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "group": "generation",
+        "order": 7,
+        "supported": true,
+        "advanced": true,
+        "help_text": "Sequences that stop generation when encountered. Supports up to four sequences."
+      },
+      {
+        "key": "reasoning_effort",
+        "label": "Reasoning Effort",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "options": [
+          {
+            "label": "Low",
+            "value": "low"
+          },
+          {
+            "label": "High",
+            "value": "high"
+          },
+          {
+            "label": "Maximum",
+            "value": "max"
+          }
+        ],
+        "group": "generation",
+        "order": 8,
+        "supported": true,
+        "help_text": "Controls reasoning effort where supported by the selected model and API."
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "group": "reliability",
+        "order": 1,
+        "supported": true,
+        "advanced": true,
+        "help_text": "Maximum number of retry attempts for transient failures.",
+        "minimum": 0,
+        "maximum": 10
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": false,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "sarvam",
+    "color": "#2563EB",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "Sarvam AI",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": [
+      "reliability"
+    ],
+    "badges": [
+      "Indian AI",
+      "Multilingual"
+    ]
+  },
+  "documentation": {
+    "official": "https://docs.sarvam.ai/",
+    "api_reference": "https://docs.sarvam.ai/api-reference/introduction",
+    "pricing": "https://www.sarvam.ai/"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-sarvam",
+      "minimum_version": "0.1.0",
+      "maximum_version": null
+    }
+  }
+}

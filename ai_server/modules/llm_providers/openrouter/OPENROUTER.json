@@ -1,0 +1,504 @@
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "OPENROUTER",
+    "name": "OpenRouter",
+    "slug": "openrouter",
+    "description": "Unified API providing access to language models from multiple AI providers through one OpenAI-compatible interface.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "website": "https://openrouter.ai/",
+    "logo": null,
+    "tags": [
+      "model_aggregator",
+      "multi-provider",
+      "model_routing",
+      "openai_compatible"
+    ]
+  },
+  "implementation": {
+    "module": "openrouter",
+    "class": "OpenRouterProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "OpenRouter",
+    "regions": [],
+    "custom": {
+      "maintainer": "AIVERSE",
+      "integration_type": "openai_compatible",
+      "credential_owner": "spring_server",
+      "model_catalogue_source": "openrouter",
+      "supports_model_specific_parameters": true
+    }
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": true,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "image_output": true,
+    "audio_input": true,
+    "audio_output": true,
+    "vision": true,
+    "reasoning": true,
+    "multimodal": true,
+    "model_routing": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": [
+      "api_key"
+    ],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "OpenRouter API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": true,
+        "description": "Create an API key from your OpenRouter account."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection Settings",
+        "order": 1,
+        "description": "Connection Settings for this provider."
+      }
+    ],
+    "fields": [
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "group": "connection",
+        "order": 1,
+        "supported": true,
+        "help_text": "OpenRouter API endpoint.",
+        "placeholder": "https://openrouter.ai/api/v1",
+        "default": null,
+        "advanced": true
+      },
+      {
+        "key": "site_url",
+        "label": "Application URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "group": "connection",
+        "order": 2,
+        "supported": true,
+        "help_text": "Optional HTTP-Referer header used to identify your application."
+      },
+      {
+        "key": "app_name",
+        "label": "Application Name",
+        "type": "string",
+        "input": "text",
+        "required": false,
+        "default": "AIVERSE",
+        "group": "connection",
+        "order": 3,
+        "supported": true,
+        "help_text": "Optional X-Title header used to identify your application."
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "method": "GET",
+      "authentication": "bearer",
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "name"
+      },
+      "path": "/models",
+      "operation": "discover_models"
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "openai/gpt-4o",
+          "name": "GPT-4o",
+          "description": "Multimodal general-purpose model.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "image_input": true,
+            "reasoning": false
+          },
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        },
+        {
+          "id": "anthropic/claude-sonnet-4",
+          "name": "Claude Sonnet 4",
+          "description": "General-purpose model with reasoning and coding capabilities.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "image_input": true,
+            "reasoning": true
+          },
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        },
+        {
+          "id": "google/gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "description": "Multimodal model optimized for speed and efficiency.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "structured_output": true,
+            "image_input": true,
+            "reasoning": true
+          },
+          "input_modalities": [
+            "text",
+            "image",
+            "audio",
+            "video"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": [
+      "id",
+      "name"
+    ],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation Settings",
+        "order": 1,
+        "description": "Generation Settings."
+      },
+      {
+        "key": "routing",
+        "label": "Model Routing",
+        "description": "Control how OpenRouter selects providers for a model.",
+        "order": 2
+      },
+      {
+        "key": "reliability",
+        "label": "Reliability Settings",
+        "order": 3,
+        "description": "Reliability Settings."
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 1,
+        "supported": true,
+        "help_text": "Controls randomness. Supported range depends on the selected model.",
+        "minimum": 0,
+        "maximum": 2
+      },
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "group": "generation",
+        "order": 2,
+        "supported": true,
+        "help_text": "Maximum number of tokens generated.",
+        "minimum": 1
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.05,
+        "group": "generation",
+        "order": 3,
+        "supported": true,
+        "help_text": "Controls nucleus sampling.",
+        "minimum": 0,
+        "maximum": 1
+      },
+      {
+        "key": "frequency_penalty",
+        "label": "Frequency Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 4,
+        "supported": true,
+        "help_text": "Reduces repeated token usage.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "presence_penalty",
+        "label": "Presence Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 5,
+        "supported": true,
+        "help_text": "Encourages introducing new topics.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "seed",
+        "label": "Random Seed",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "group": "generation",
+        "order": 6,
+        "supported": true,
+        "help_text": "Requests deterministic sampling where supported by the selected model."
+      },
+      {
+        "key": "stop",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "group": "generation",
+        "order": 7,
+        "supported": true,
+        "help_text": "Sequences that stop generation."
+      },
+      {
+        "key": "n",
+        "label": "Number of Responses",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "group": "generation",
+        "order": 8,
+        "supported": true,
+        "help_text": "Number of completion choices requested. Model and provider support may vary.",
+        "minimum": 1,
+        "maximum": 5
+      },
+      {
+        "key": "logprobs",
+        "label": "Return Log Probabilities",
+        "type": "boolean",
+        "input": "switch",
+        "required": false,
+        "default": false,
+        "group": "generation",
+        "order": 9,
+        "supported": true,
+        "help_text": "Requests token log probabilities where supported."
+      },
+      {
+        "key": "top_logprobs",
+        "label": "Top Log Probabilities",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "group": "generation",
+        "order": 10,
+        "supported": true,
+        "help_text": "Number of alternative token log probabilities to return.",
+        "minimum": 0,
+        "maximum": 20
+      },
+      {
+        "key": "provider",
+        "label": "Provider Routing",
+        "type": "object",
+        "input": "json",
+        "required": false,
+        "group": "routing",
+        "order": 1,
+        "supported": true,
+        "help_text": "OpenRouter provider routing preferences, including order, allow_fallbacks, and data_collection."
+      },
+      {
+        "key": "route",
+        "label": "Routing Strategy",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "options": [
+          {
+            "label": "Default",
+            "value": "default"
+          },
+          {
+            "label": "Fallback",
+            "value": "fallback"
+          },
+          {
+            "label": "Sort by Price",
+            "value": "sort"
+          }
+        ],
+        "group": "routing",
+        "order": 2,
+        "supported": true,
+        "help_text": "Optional provider routing strategy."
+      },
+      {
+        "key": "models",
+        "label": "Fallback Models",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "group": "routing",
+        "order": 3,
+        "supported": true,
+        "help_text": "Ordered alternative model IDs to use when the primary model is unavailable."
+      },
+      {
+        "key": "transforms",
+        "label": "Prompt Transforms",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "group": "routing",
+        "order": 4,
+        "supported": true,
+        "help_text": "OpenRouter prompt transformation options."
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "group": "reliability",
+        "order": 1,
+        "supported": true,
+        "help_text": "Maximum retry attempts for transient failures.",
+        "minimum": 0,
+        "maximum": 10
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": true,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "openrouter",
+    "color": "#6366F1",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "OpenRouter",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": [
+      "reliability"
+    ],
+    "badges": [
+      "Model Aggregator",
+      "Multi-provider"
+    ]
+  },
+  "documentation": {
+    "api_reference": "https://openrouter.ai/docs/api-reference/overview",
+    "models": "https://openrouter.ai/models",
+    "pricing": "https://openrouter.ai/models",
+    "official": "https://openrouter.ai/docs"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-openai",
+      "minimum_version": "1.0.0",
+      "maximum_version": null
+    }
+  }
+}

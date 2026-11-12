@@ -1,0 +1,398 @@
+{
+  "schema_version": "1.0.0",
+  "provider": {
+    "key": "NVIDIA_NIM",
+    "name": "NVIDIA NIM",
+    "slug": "nvidia-nim",
+    "description": "NVIDIA inference microservices for deploying and consuming optimized AI models through hosted and self-hosted endpoints.",
+    "category": "cloud",
+    "status": "active",
+    "version": "1.0.0",
+    "website": "https://www.nvidia.com/en-us/ai/",
+    "logo": null,
+    "tags": [
+      "nvidia",
+      "nim",
+      "inference",
+      "self_hosted",
+      "gpu"
+    ]
+  },
+  "implementation": {
+    "module": "nvidia",
+    "class": "NVIDIANIMProvider",
+    "version": "1.0.0",
+    "interface_version": "1.0.0"
+  },
+  "metadata": {
+    "publisher": "NVIDIA NIM",
+    "regions": [],
+    "custom": {
+      "maintainer": "AIVERSE",
+      "integration_type": "langchain",
+      "credential_owner": "spring_server",
+      "supports_hosted": true,
+      "supports_self_hosted": true
+    }
+  },
+  "capabilities": {
+    "chat": true,
+    "streaming": true,
+    "embeddings": true,
+    "tool_calling": true,
+    "structured_output": true,
+    "image_input": true,
+    "image_output": false,
+    "audio_input": true,
+    "audio_output": true,
+    "vision": true,
+    "reasoning": true,
+    "multimodal": true,
+    "self_hosted": true
+  },
+  "credentials": {
+    "required": true,
+    "supported_types": [
+      "api_key"
+    ],
+    "primary_type": "api_key",
+    "allow_multiple": false,
+    "credential_schema": [
+      {
+        "key": "api_key",
+        "label": "NVIDIA API Key",
+        "type": "secret",
+        "credential_type": "api_key",
+        "required": false,
+        "description": "Required for hosted NVIDIA API Catalog endpoints. May be omitted for self-hosted deployments."
+      }
+    ]
+  },
+  "configuration": {
+    "groups": [
+      {
+        "key": "connection",
+        "label": "Connection Settings",
+        "order": 1,
+        "description": "Connection Settings for this provider."
+      }
+    ],
+    "fields": [
+      {
+        "key": "deployment_type",
+        "label": "Deployment Type",
+        "type": "string",
+        "input": "select",
+        "required": false,
+        "default": "hosted",
+        "options": [
+          {
+            "label": "NVIDIA Hosted",
+            "value": "hosted"
+          },
+          {
+            "label": "Self Hosted NIM",
+            "value": "self_hosted"
+          }
+        ],
+        "group": "connection",
+        "order": 1,
+        "supported": true,
+        "help_text": "Choose between NVIDIA-hosted inference and your own NIM deployment."
+      },
+      {
+        "key": "base_url",
+        "label": "Base URL",
+        "type": "string",
+        "input": "url",
+        "required": false,
+        "group": "connection",
+        "order": 2,
+        "supported": true,
+        "help_text": "Hosted API URL or your self-hosted NIM OpenAI-compatible endpoint.",
+        "placeholder": "https://integrate.api.nvidia.com/v1",
+        "default": null,
+        "advanced": true
+      }
+    ]
+  },
+  "model_discovery": {
+    "strategy": "hybrid",
+    "auto_discover": true,
+    "cache": {
+      "enabled": true,
+      "ttl_seconds": 3600
+    },
+    "remote": {
+      "method": "GET",
+      "authentication": "bearer",
+      "response": {
+        "models_path": "data",
+        "id_field": "id",
+        "name_field": "id"
+      },
+      "path": "/models",
+      "operation": "discover_models"
+    },
+    "fallback": {
+      "enabled": true,
+      "models": [
+        {
+          "id": "meta/llama-3.3-70b-instruct",
+          "name": "Llama 3.3 70B Instruct",
+          "description": "General-purpose instruction-following model.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "reasoning": false
+          },
+          "input_modalities": [
+            "text"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        },
+        {
+          "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+          "name": "Llama 3.1 Nemotron Ultra 253B",
+          "description": "Large reasoning and instruction-following model.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": true,
+            "reasoning": true
+          },
+          "input_modalities": [
+            "text"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        },
+        {
+          "id": "nvidia/nemotron-4-340b-instruct",
+          "name": "Nemotron 4 340B Instruct",
+          "description": "Large instruction-following model.",
+          "capabilities": {
+            "chat": true,
+            "streaming": true,
+            "tool_calling": false,
+            "reasoning": false
+          },
+          "input_modalities": [
+            "text"
+          ],
+          "output_modalities": [
+            "text"
+          ]
+        }
+      ]
+    }
+  },
+  "model_schema": {
+    "required_fields": [
+      "id",
+      "name"
+    ],
+    "fields": {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "capabilities": "object",
+      "context_window": "integer",
+      "max_output_tokens": "integer",
+      "input_modalities": "array",
+      "output_modalities": "array",
+      "metadata": "object"
+    }
+  },
+  "parameters": {
+    "groups": [
+      {
+        "key": "generation",
+        "label": "Generation Settings",
+        "order": 1,
+        "description": "Generation Settings."
+      }
+    ],
+    "fields": [
+      {
+        "key": "temperature",
+        "label": "Temperature",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 1,
+        "supported": true,
+        "help_text": "Controls randomness. Supported range depends on the selected model.",
+        "minimum": 0,
+        "maximum": 2
+      },
+      {
+        "key": "max_tokens",
+        "label": "Maximum Output Tokens",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "group": "generation",
+        "order": 2,
+        "supported": true,
+        "help_text": "Maximum number of generated tokens.",
+        "minimum": 1
+      },
+      {
+        "key": "top_p",
+        "label": "Top P",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.05,
+        "group": "generation",
+        "order": 3,
+        "supported": true,
+        "help_text": "Controls nucleus sampling.",
+        "minimum": 0,
+        "maximum": 1
+      },
+      {
+        "key": "frequency_penalty",
+        "label": "Frequency Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 4,
+        "supported": true,
+        "help_text": "Reduces repeated token usage where supported.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "presence_penalty",
+        "label": "Presence Penalty",
+        "type": "number",
+        "input": "slider",
+        "required": false,
+        "step": 0.1,
+        "group": "generation",
+        "order": 5,
+        "supported": true,
+        "help_text": "Encourages introducing new topics where supported.",
+        "minimum": -2,
+        "maximum": 2
+      },
+      {
+        "key": "seed",
+        "label": "Random Seed",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "group": "generation",
+        "order": 6,
+        "supported": true,
+        "help_text": "Requests reproducible generation where supported."
+      },
+      {
+        "key": "stop",
+        "label": "Stop Sequences",
+        "type": "array",
+        "input": "json",
+        "required": false,
+        "group": "generation",
+        "order": 7,
+        "supported": true,
+        "help_text": "Sequences that stop generation."
+      },
+      {
+        "key": "n",
+        "label": "Number of Responses",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 1,
+        "group": "generation",
+        "order": 8,
+        "supported": true,
+        "help_text": "Number of completion choices requested, where supported.",
+        "minimum": 1,
+        "maximum": 5
+      },
+      {
+        "key": "max_retries",
+        "label": "Maximum Retries",
+        "type": "integer",
+        "input": "number",
+        "required": false,
+        "default": 2,
+        "group": "generation",
+        "order": 9,
+        "supported": true,
+        "help_text": "Maximum retry attempts for transient failures.",
+        "minimum": 0,
+        "maximum": 10
+      }
+    ]
+  },
+  "operations": {
+    "validate_credentials": {
+      "enabled": true,
+      "handler": "validate_credentials"
+    },
+    "discover_models": {
+      "enabled": true,
+      "handler": "discover_models"
+    },
+    "test_connection": {
+      "enabled": true,
+      "handler": "test_connection"
+    },
+    "chat": {
+      "enabled": true,
+      "handler": "create_model"
+    },
+    "streaming": {
+      "enabled": true,
+      "handler": "stream"
+    },
+    "embeddings": {
+      "enabled": true,
+      "handler": "create_embeddings"
+    }
+  },
+  "ui": {
+    "icon": "nvidia",
+    "color": "#76B900",
+    "featured": true,
+    "show_in_catalog": true,
+    "display_name": "NVIDIA NIM",
+    "configuration_layout": "grouped",
+    "parameter_layout": "grouped",
+    "default_collapsed_groups": [
+      "generation"
+    ],
+    "badges": [
+      "NVIDIA",
+      "NIM"
+    ]
+  },
+  "documentation": {
+    "api_reference": "https://docs.api.nvidia.com/nim/",
+    "models": "https://build.nvidia.com/",
+    "pricing": "https://build.nvidia.com/",
+    "official": "https://docs.nvidia.com/nim/"
+  },
+  "compatibility": {
+    "python": ">=3.14",
+    "ai_server_interface": "1.0.0",
+    "sdk": {
+      "package": "langchain-nvidia-ai-endpoints",
+      "minimum_version": "0.3.0",
+      "maximum_version": null
+    }
+  }
+}

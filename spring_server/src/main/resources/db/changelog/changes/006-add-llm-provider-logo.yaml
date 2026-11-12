@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-add-llm-provider-logo
+      author: aiverse
+      changes:
+        - addColumn:
+            tableName: llm_provider_catalog
+            columns:
+              - column:
+                  name: logo
+                  type: TEXT
+      rollback:
+        - dropColumn:
+            tableName: llm_provider_catalog
+            columnName: logo

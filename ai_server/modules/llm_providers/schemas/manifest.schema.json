@@ -1,0 +1,385 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiverse.dev/schemas/llm-provider-manifest.schema.json",
+  "title": "AIVERSE LLM Provider Manifest",
+  "description": "Standard manifest contract for all AIVERSE LLM providers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provider",
+    "implementation",
+    "capabilities",
+    "credentials",
+    "configuration",
+    "model_discovery",
+    "model_schema",
+    "parameters",
+    "operations",
+    "ui",
+    "documentation",
+    "compatibility"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "slug", "description", "category", "status", "version"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+        "name": {"type": "string", "minLength": 1},
+        "slug": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+        "description": {"type": "string"},
+        "category": {
+          "enum": ["cloud", "self_hosted", "local", "aggregator", "custom"]
+        },
+        "status": {
+          "enum": ["active", "beta", "deprecated"]
+        },
+        "version": {"type": "string"},
+        "logo": {"type": ["string", "null"]},
+        "website": {"type": ["string", "null"], "format": "uri"},
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "class", "version", "interface_version"],
+      "properties": {
+        "module": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+        "class": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+        "version": {"type": "string"},
+        "interface_version": {"type": "string"}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "publisher": {"type": "string"},
+        "regions": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "pricing_url": {"type": ["string", "null"], "format": "uri"},
+        "support_url": {"type": ["string", "null"], "format": "uri"},
+        "release_notes_url": {"type": ["string", "null"], "format": "uri"},
+        "custom": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "capabilities": {
+      "$ref": "#/$defs/capabilities"
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "supported_types", "primary_type", "credential_schema"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "supported_types": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "primary_type": {"type": ["string", "null"]},
+        "allow_multiple": {"type": "boolean", "default": false},
+        "credential_schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "label", "type", "required"],
+            "properties": {
+              "key": {"type": "string"},
+              "label": {"type": "string"},
+              "type": {"type": "string", "const": "secret"},
+              "credential_type": {"type": "string"},
+              "required": {"type": "boolean"},
+              "description": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups", "fields"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/group"}
+        },
+        "fields": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/configuration_field"}
+        }
+      }
+    },
+    "model_discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "auto_discover", "cache", "fallback"],
+      "properties": {
+        "strategy": {"enum": ["remote", "manifest", "hybrid"]},
+        "auto_discover": {"type": "boolean"},
+        "cache": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "ttl_seconds"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "ttl_seconds": {"type": "integer", "minimum": 0}
+          }
+        },
+        "remote": {
+          "type": "object",
+          "properties": {
+            "operation": {"type": "string"},
+            "method": {
+              "enum": ["GET", "POST"]
+            },
+            "path": {"type": "string"},
+            "authentication": {"type": "string"},
+            "response": {"type": "object"}
+          },
+          "additionalProperties": true
+        },
+        "fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "models"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "models": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/model"}
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"strategy": {"const": "remote"}}},
+          "then": {"required": ["remote"]}
+        },
+        {
+          "if": {"properties": {"strategy": {"const": "hybrid"}}},
+          "then": {"required": ["remote"]}
+        }
+      ]
+    },
+    "model_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_fields", "fields"],
+      "properties": {
+        "required_fields": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups", "fields"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/group"}
+        },
+        "fields": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/parameter_field"}
+        }
+      }
+    },
+    "operations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "validate_credentials": {"$ref": "#/$defs/operation"},
+        "discover_models": {"$ref": "#/$defs/operation"},
+        "test_connection": {"$ref": "#/$defs/operation"},
+        "chat": {"$ref": "#/$defs/operation"},
+        "streaming": {"$ref": "#/$defs/operation"},
+        "embeddings": {"$ref": "#/$defs/operation"}
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "icon": {"type": ["string", "null"]},
+        "color": {"type": ["string", "null"]},
+        "featured": {"type": "boolean"},
+        "show_in_catalog": {"type": "boolean"},
+        "display_name": {"type": "string"},
+        "configuration_layout": {"type": "string"},
+        "parameter_layout": {"type": "string"},
+        "default_collapsed_groups": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "badges": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "properties": {
+        "official": {"type": ["string", "null"], "format": "uri"},
+        "api_reference": {"type": ["string", "null"], "format": "uri"},
+        "models": {"type": ["string", "null"], "format": "uri"},
+        "pricing": {"type": ["string", "null"], "format": "uri"}
+      },
+      "additionalProperties": true
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "ai_server_interface", "sdk"],
+      "properties": {
+        "python": {"type": "string"},
+        "ai_server_interface": {"type": "string"},
+        "sdk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["package", "minimum_version"],
+          "properties": {
+            "package": {"type": "string"},
+            "minimum_version": {"type": "string"},
+            "maximum_version": {"type": ["string", "null"]}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": {"type": "boolean"}
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label"],
+      "properties": {
+        "key": {"type": "string"},
+        "label": {"type": "string"},
+        "description": {"type": "string"},
+        "order": {"type": "integer"}
+      }
+    },
+    "field_common": {
+      "type": "object",
+      "required": ["key", "label", "type", "input"],
+      "properties": {
+        "key": {"type": "string"},
+        "label": {"type": "string"},
+        "description": {"type": "string"},
+        "type": {
+          "enum": ["string", "integer", "number", "boolean", "array", "object"]
+        },
+        "input": {
+          "enum": [
+            "text", "password", "textarea", "number", "switch",
+            "checkbox", "select", "multiselect", "radio", "slider",
+            "url", "json", "code", "file", "key_value"
+          ]
+        },
+        "required": {"type": "boolean"},
+        "default": {},
+        "placeholder": {"type": ["string", "null"]},
+        "help_text": {"type": "string"},
+        "group": {"type": "string"},
+        "order": {"type": "integer"},
+        "advanced": {"type": "boolean"},
+        "disabled": {"type": "boolean"},
+        "options": {"type": "array"},
+        "validation": {"type": "object"},
+        "visible_when": {"type": "object"},
+        "disabled_when": {"type": "object"}
+      }
+    },
+    "configuration_field": {
+      "allOf": [{"$ref": "#/$defs/field_common"}],
+      "unevaluatedProperties": true
+    },
+    "parameter_field": {
+      "allOf": [
+        {"$ref": "#/$defs/field_common"},
+        {
+          "type": "object",
+          "properties": {
+            "supported": {"type": "boolean"},
+            "minimum": {"type": "number"},
+            "maximum": {"type": "number"},
+            "step": {"type": "number"},
+            "model_overrides": {"type": "object"}
+          }
+        }
+      ],
+      "unevaluatedProperties": true
+    },
+    "model": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "description": {"type": ["string", "null"]},
+        "capabilities": {"$ref": "#/$defs/capabilities"},
+        "context_window": {"type": ["integer", "null"]},
+        "max_output_tokens": {"type": ["integer", "null"]},
+        "input_modalities": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "output_modalities": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "metadata": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "handler"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "handler": {
+          "enum": [
+            "validate_credentials",
+            "discover_models",
+            "test_connection",
+            "create_model",
+            "stream",
+            "create_embeddings"
+          ]
+        }
+      }
+    }
+  }
+}

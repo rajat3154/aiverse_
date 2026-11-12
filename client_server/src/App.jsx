@@ -7,6 +7,7 @@ import OAuthCallbackPage from './components/auth/OAuthCallbackPage'
 import SignupPage from './components/auth/SignupPage'
 import MasterDashboard from './components/master/MasterDashboard'
 import CredentialsPage from './components/credentials/CredentialsPage'
+import LlmProvidersPage from './components/llmproviders/LlmProvidersPage'
 import { getSession, isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 
@@ -120,7 +121,7 @@ const App = () => {
   }
 
   // The master account has no credentials page; it goes back to its dashboard.
-  if (signedIn && isMaster && path.startsWith('/credentials')) {
+  if (signedIn && isMaster && (path.startsWith('/credentials'))) {
     window.location.replace(home)
     return null
   }
@@ -133,7 +134,7 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/llm-providers' ? <Layout><LlmProvidersPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
     </ThemeProvider>
   )
 }
