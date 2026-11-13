@@ -10,6 +10,7 @@ import CredentialsPage from './components/credentials/CredentialsPage'
 import LlmProvidersPage from './components/llmproviders/LlmProvidersPage'
 import { getSession, isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
+import ConfirmProvider from './components/shared/ConfirmProvider'
 
 const MenuIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -134,7 +135,9 @@ const App = () => {
 
   return (
     <ThemeProvider>
+      <ConfirmProvider>
       {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/llm-providers' ? <Layout><LlmProvidersPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+      </ConfirmProvider>
     </ThemeProvider>
   )
 }

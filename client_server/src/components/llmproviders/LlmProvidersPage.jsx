@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { getSession } from "../../services/authService";
+import LlmConfigurationsPage from "./LlmConfigurationsPage";
 import ProviderConfigModal from "./ProviderConfigModal";
 import { listLlmProviders, removeProviderLogo, uploadProviderLogo } from "../../services/llmProviderService";
 
@@ -102,6 +103,8 @@ export default function LlmProvidersPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [tab, setTab] = useState("providers"); // "providers": the catalog, "configurations": configure any provider
+  const [configProviderId, setConfigProviderId] = useState(null);
   const [busyId, setBusyId] = useState(null);
   // Only decides whether the controls show; the gateway rejects logo changes from any other role.
   const isMaster = getSession()?.user?.role === "MASTER";
@@ -151,16 +154,42 @@ export default function LlmProvidersPage() {
     );
   }
 
+  const header = (
+    <div className="w-full shrink-0 px-3 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+      <div className="mb-4">
+        <p className="text-xs font-medium tracking-widest text-(--accent-readable)">MODEL CATALOG</p>
+        <h1 className="mt-1 text-2xl font-bold">LLM Providers</h1>
+        <p className={`mt-1 text-sm ${isLight ? "text-gray-600" : "text-[#AEBBCB]"}`}>
+          Providers available to your agents and workflows. Add a matching credential to start using one.
+        </p>
+      </div>
+      <div className={`-mb-px flex gap-6 border-b ${isLight ? "border-black/8" : "border-white/10"}`} role="tablist">
+        {[["providers", "Providers"], ["configurations", "Configurations"]].map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            onClick={() => setTab(id)}
+            className={`cursor-pointer border-0 border-b-2 bg-transparent px-0.5 pb-2.5 pt-1 text-sm transition-colors ${
+              tab === id ? "border-(--accent-color) font-semibold text-(--accent-readable)" : `border-transparent ${isLight ? "text-gray-500" : "text-[#8B98A8]"} hover:text-inherit`
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className={`flex-1 min-w-0 flex flex-col h-full overflow-y-auto scrollable ${isLight ? "bg-white text-gray-900" : "bg-black text-white"}`}>
-      <div className="w-full px-3 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-        <div className="mb-6">
-          <p className="text-xs font-medium tracking-widest text-(--accent-readable)">MODEL CATALOG</p>
-          <h1 className="mt-1 text-2xl font-bold">LLM Providers</h1>
-          <p className={`mt-1 text-sm ${isLight ? "text-gray-600" : "text-[#AEBBCB]"}`}>
-            Providers available to your agents and workflows. Add a matching credential to start using one.
-          </p>
-        </div>
+    <div className={`flex-1 min-w-0 flex flex-col h-full ${tab === "providers" ? "overflow-y-auto scrollable" : "overflow-hidden"} ${isLight ? "bg-white text-gray-900" : "bg-black text-white"}`}>
+      {tab === "providers" && header}
+
+      {tab === "configurations" ? (
+        <LlmConfigurationsPage providers={providers} initialId={configProviderId} header={header} />
+      ) : (
+      <div className="w-full px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
 
         {error && (
           <div role="alert" className="mb-6 px-3.5 py-2.5 text-[13px]" style={{ background: "rgba(251,113,133,0.1)", color: "#FB7185" }}>
@@ -195,7 +224,19 @@ export default function LlmProvidersPage() {
           </div>
         )}
       </div>
-      {selected && <ProviderConfigModal provider={selected} isLight={isLight} onClose={() => setSelected(null)} />}
+      )}
+      {selected && (
+        <ProviderConfigModal
+          provider={selected}
+          isLight={isLight}
+          onClose={() => setSelected(null)}
+          onOpenConfigurations={(p) => {
+            setSelected(null);
+            setConfigProviderId(p.id);
+            setTab("configurations");
+          }}
+        />
+      )}
     </div>
   );
 }

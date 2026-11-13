@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "../../context/ThemeContext";
+import { useConfirm } from "../../hooks/useConfirm";
 import { listCredentials } from "../../services/credentialService";
 import {
   activateProviderConfiguration,
@@ -60,6 +62,16 @@ function encodeFields(fields, values) {
     }
   });
   return out;
+}
+// "label: value" pairs for the settings a saved configuration changed from the defaults, so a card says what the configuration is.
+function summarize(fields, saved) {
+  return fields
+    .filter((f) => f.supported !== false && saved?.[f.key] !== undefined && saved[f.key] !== null && saved[f.key] !== "")
+    .map((f) => {
+      const v = saved[f.key];
+      const value = typeof v === "boolean" ? (v ? "On" : "Off") : Array.isArray(v) ? `${v.length} item${v.length === 1 ? "" : "s"}` : typeof v === "object" ? `${Object.keys(v).length} set` : String(v);
+      return { key: f.key, label: f.label || f.key, value: value.length > 32 ? `${value.slice(0, 31)}…` : value };
+    });
 }
 const makeSnapshot = (name, credentialId, model, configValues, paramValues) => JSON.stringify([name, credentialId, model, configValues, paramValues]);
 const inputClass = (isLight) =>
@@ -424,15 +436,19 @@ const STATUS_STYLE = {
 const capitalize = (s) => (s ? String(s).replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase()) : "");
 
 // Slide-over drawer on the right edge: the Overview tab is everything about the provider, the Configuration tab is its settings.
-export default function ProviderConfigModal({ provider, onClose }) {
-  const isLight = true; // pure white panel regardless of the app theme
+// With asPage the same panel fills the right pane of the Configurations tab on the LLM Providers page: no overlay or close
+// button, opens on the saved-configurations list (Edit or + New opens the form), and only has the Configurations and Test tabs.
+export default function ProviderConfigModal({ provider, onClose, onOpenConfigurations, asPage = false }) {
+  const { rightSidebarTheme, mainSectionTheme } = useTheme();
+  const isLight = (asPage ? mainSectionTheme : rightSidebarTheme) === "light";
+  const surface = isLight ? "bg-white" : "bg-black";
   const configFields = provider.configuration?.fields || [];
   const parameterFields = provider.parameters?.fields || [];
   const [configValues, setConfigValues] = useState(() => initialValues(configFields));
   const [paramValues, setParamValues] = useState(() => initialValues(parameterFields));
-  const [tab, setTab] = useState("provider");
+  const [tab, setTab] = useState(asPage ? "configuration" : "provider");
   const [section, setSection] = useState(null);
-  const [entered, setEntered] = useState(false);
+  const [entered, setEntered] = useState(asPage);
   const [query, setQuery] = useState("");
   const [credentialId, setCredentialId] = useState("");
   const [model, setModel] = useState("");
@@ -447,6 +463,20 @@ export default function ProviderConfigModal({ provider, onClose }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
+  const [credentialNames, setCredentialNames] = useState({}); // credential id -> name, for the configuration cards
+  useEffect(() => {
+    if (!provider.credentialRequired) return undefined;
+    let cancelled = false;
+    listCredentials()
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.content ?? [];
+        if (!cancelled) setCredentialNames(Object.fromEntries(list.map((c) => [c.id, c.name])));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [provider.credentialRequired]);
   const [view, setView] = useState("list"); // "list": the saved configurations, "edit": one configuration's form
 
   const groups = useMemo(() => buildGroups(provider), [provider]);
@@ -525,7 +555,9 @@ export default function ProviderConfigModal({ provider, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [provider.id]);
 
-  const confirmDiscard = () => !dirty || window.confirm("Discard your unsaved changes?");
+  const confirm = useConfirm();
+  const confirmDiscard = async () =>
+    !dirty || confirm({ title: "Discard changes?", message: "You have unsaved changes. They will be lost.", confirmText: "Discard", tone: "danger" });
   const run = async (action) => {
     setBusy(true);
     setNotice(null);
@@ -561,8 +593,8 @@ export default function ProviderConfigModal({ provider, onClose }) {
       if (fresh && !dirty) applyConfig(fresh);
       setNotice({ type: "ok", text: `"${c.name}" is now the active configuration.` });
     });
-  const removeConfig = (c) => {
-    if (!window.confirm(`Delete the configuration "${c.name}"? This cannot be undone.`)) return;
+  const removeConfig = async (c) => {
+    if (!(await confirm({ title: "Delete configuration?", message: `"${c.name}" will be deleted. This cannot be undone.`, confirmText: "Delete", tone: "danger" }))) return;
     run(async () => {
       await deleteProviderConfiguration(provider.id, c.id);
       const list = await refetch();
@@ -574,25 +606,25 @@ export default function ProviderConfigModal({ provider, onClose }) {
       setNotice({ type: "ok", text: "Configuration deleted." });
     });
   };
-  const startNew = () => {
-    if (!confirmDiscard()) return;
+  const startNew = async () => {
+    if (!(await confirmDiscard())) return;
     setNotice(null);
     applyBlank();
     setView("edit");
   };
-  const editConfig = (c) => {
-    if (c.id !== selectedId && !confirmDiscard()) return;
+  const editConfig = async (c) => {
+    if (c.id !== selectedId && !(await confirmDiscard())) return;
     setNotice(null);
     if (c.id !== selectedId) applyConfig(c);
     setView("edit");
   };
-  const testConfig = (c) => {
-    if (c.id !== selectedId && !confirmDiscard()) return;
+  const testConfig = async (c) => {
+    if (c.id !== selectedId && !(await confirmDiscard())) return;
     if (c.id !== selectedId) applyConfig(c);
     setTab("test");
   };
-  const backToList = () => {
-    if (!confirmDiscard()) return;
+  const backToList = async () => {
+    if (!(await confirmDiscard())) return;
     if (current) applyConfig(current);
     else applyBlank();
     setNotice(null);
@@ -601,6 +633,7 @@ export default function ProviderConfigModal({ provider, onClose }) {
 
   // slide in on mount, keep the page behind from scrolling, and give the drawer focus
   useEffect(() => {
+    if (asPage) return undefined;
     const frame = requestAnimationFrame(() => setEntered(true));
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -609,20 +642,25 @@ export default function ProviderConfigModal({ provider, onClose }) {
       cancelAnimationFrame(frame);
       document.body.style.overflow = previous;
     };
-  }, []);
+  }, [asPage]);
   const closeTimer = useRef(null);
   const close = () => {
+    if (asPage) {
+      onClose();
+      return;
+    }
     setEntered(false);
     clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(onClose, 180);
   };
   useEffect(() => () => clearTimeout(closeTimer.current), []);
   useEffect(() => {
+    if (asPage) return undefined;
     const onKey = (e) => e.key === "Escape" && close();
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [asPage]);
 
   const meta = provider.manifest?.metadata || {};
   const docsUrl = provider.manifest?.documentation?.official || provider.website;
@@ -637,23 +675,33 @@ export default function ProviderConfigModal({ provider, onClose }) {
     setModel("");
   };
 
-  const tabs = [["provider", "Overview"], ["configuration", "Configurations"], ["test", "Test"]];
+  const tabs = asPage ? [["configuration", "Configurations"], ["test", "Test"]] : [["provider", "Overview"], ["configuration", "Configurations"], ["test", "Test"]];
+  // In the drawer the Configurations tab leads to the page's Configurations tab (leaving with unsaved edits asks first).
+  const selectTab = async (id) => {
+    if (!asPage && id === "configuration") {
+      if (await confirmDiscard()) onOpenConfigurations?.(provider);
+      return;
+    }
+    setTab(id);
+  };
   const configuring = tab === "configuration" && view === "edit" && (groups.length > 0 || hasConnection);
   const iconBtn = `flex h-8 w-8 cursor-pointer items-center justify-center border-0 bg-transparent transition ${isLight ? "text-gray-500 hover:bg-black/5" : "text-[#9AA7B6] hover:bg-white/8"}`;
 
   return (
-    <div className="fixed inset-0 z-50" role="presentation">
-      <div className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${entered ? "opacity-100" : "opacity-0"}`} onClick={close} />
+    <div className={asPage ? `flex h-full min-w-0 flex-1 ${surface}` : "fixed inset-0 z-50"} role="presentation">
+      {!asPage && <div className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${entered ? "opacity-100" : "opacity-0"}`} onClick={close} />}
 
       <aside
         ref={drawerRef}
         tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
+        role={asPage ? "region" : "dialog"}
+        aria-modal={asPage ? undefined : "true"}
         aria-label={`${provider.name} provider`}
-        className={`absolute inset-y-0 right-0 flex w-full flex-col border-l shadow-2xl outline-none transition-transform duration-200 ease-out max-w-sm ${entered ? "translate-x-0" : "translate-x-full"} ${
-          isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241]/60 bg-black text-white"
-        }`}
+        className={`flex flex-col outline-none ${
+          asPage
+            ? "h-full w-full min-w-0"
+            : `absolute inset-y-0 right-0 w-full max-w-sm border-l shadow-2xl transition-transform duration-200 ease-out ${entered ? "translate-x-0" : "translate-x-full"}`
+        } ${isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241]/60 bg-black text-white"}`}
       >
         {/* title */}
         <header className={`shrink-0 border-b px-5 pt-4 ${line}`}>
@@ -681,7 +729,7 @@ export default function ProviderConfigModal({ provider, onClose }) {
               {docsUrl && (
                 <a href={docsUrl} target="_blank" rel="noopener noreferrer" aria-label="Documentation" title="Documentation" className={iconBtn}><ExternalIcon /></a>
               )}
-              <button type="button" aria-label="Close" onClick={close} className={iconBtn}><CloseIcon /></button>
+              {!asPage && <button type="button" aria-label="Close" onClick={close} className={iconBtn}><CloseIcon /></button>}
             </div>
           </div>
 
@@ -694,7 +742,7 @@ export default function ProviderConfigModal({ provider, onClose }) {
                   type="button"
                   role="tab"
                   aria-selected={active}
-                  onClick={() => setTab(id)}
+                  onClick={() => selectTab(id)}
                   className={`flex cursor-pointer items-center gap-2 border-0 border-b-2 bg-transparent px-0.5 pb-2.5 pt-1 text-[13.5px] transition-colors ${
                     active ? "border-(--accent-color) font-semibold text-(--accent-readable)" : `border-transparent ${muted} hover:text-inherit`
                   }`}
@@ -721,7 +769,7 @@ export default function ProviderConfigModal({ provider, onClose }) {
                     id="test-config"
                     value={selectedId}
                     options={configs.map((c) => ({ value: c.id, label: c.active ? `${c.name}  ·  Active` : c.name, hint: c.model || undefined }))}
-                    onChange={(id) => id !== selectedId && confirmDiscard() && applyConfig(configs.find((c) => c.id === id))}
+                    onChange={async (id) => id !== selectedId && (await confirmDiscard()) && applyConfig(configs.find((c) => c.id === id))}
                     isLight={isLight}
                     base={inputClass(isLight)}
                   />
@@ -757,23 +805,47 @@ export default function ProviderConfigModal({ provider, onClose }) {
               {configs.map((c) => (
                 <article
                   key={c.id}
-                  className={`relative flex flex-col gap-3 border bg-white p-4 pl-5 ${line}`}
+                  className={`relative flex flex-col gap-3 border ${surface} p-4 pl-5 ${line}`}
                 >
                   {c.active && <span className="absolute inset-y-0 left-0 w-0.5 bg-emerald-500" aria-hidden="true" />}
                   <div className="flex items-start justify-between gap-3">
                     <span className="min-w-0">
                       <span className="block truncate text-[14.5px] font-semibold leading-tight">{c.name}</span>
-                      <span className={`mt-1 block truncate text-[12.5px] ${muted}`}>{c.model || "No model selected"}</span>
                     </span>
                     {c.active && (
                       <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-medium text-emerald-500"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Active</span>
                     )}
                   </div>
+                  <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12.5px]">
+                    <dt className={muted}>Model</dt>
+                    <dd className="m-0 min-w-0 truncate font-medium">{c.model || "Not selected"}</dd>
+                    {provider.credentialRequired && (
+                      <>
+                        <dt className={muted}>API key</dt>
+                        <dd className="m-0 min-w-0 truncate font-medium">{c.credentialId ? credentialNames[c.credentialId] || "Saved credential" : "Not selected"}</dd>
+                      </>
+                    )}
+                  </dl>
+                  {(() => {
+                    const settings = [...summarize(configFields, c.configuration), ...summarize(parameterFields, c.parameters)];
+                    if (settings.length === 0) return <p className={`m-0 text-[12px] ${muted}`}>Default settings</p>;
+                    return (
+                      <div className="flex flex-wrap gap-1.5">
+                        {settings.slice(0, 6).map((x) => (
+                          <span key={x.key} title={`${x.label}: ${x.value}`} className={`inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] ${isLight ? "bg-black/5" : "bg-white/10"}`}>
+                            <span className={`truncate ${muted}`}>{x.label}</span>
+                            <span className="truncate font-medium">{x.value}</span>
+                          </span>
+                        ))}
+                        {settings.length > 6 && <span className={`inline-flex items-center px-1 text-[11.5px] ${muted}`}>+{settings.length - 6} more</span>}
+                      </div>
+                    );
+                  })()}
                   <div className="flex flex-wrap items-center gap-2">
-                    <button type="button" onClick={() => editConfig(c)} disabled={busy} className={`cursor-pointer border bg-white px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} ${isLight ? "text-gray-900 hover:bg-black/4" : "text-white hover:bg-white/6"}`}>Edit</button>
-                    <button type="button" onClick={() => testConfig(c)} disabled={busy} className={`cursor-pointer border bg-white px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} ${isLight ? "text-gray-900 hover:bg-black/4" : "text-white hover:bg-white/6"}`}>Test</button>
+                    <button type="button" onClick={() => editConfig(c)} disabled={busy} className={`cursor-pointer border ${surface} px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} ${isLight ? "text-gray-900 hover:bg-black/4" : "text-white hover:bg-white/6"}`}>Edit</button>
+                    <button type="button" onClick={() => testConfig(c)} disabled={busy} className={`cursor-pointer border ${surface} px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} ${isLight ? "text-gray-900 hover:bg-black/4" : "text-white hover:bg-white/6"}`}>Test</button>
                     {!c.active && (
-                      <button type="button" onClick={() => makeActive(c)} disabled={busy} className={`cursor-pointer border bg-white px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} text-(--accent-readable) hover:border-(--accent-color)`}>Set active</button>
+                      <button type="button" onClick={() => makeActive(c)} disabled={busy} className={`cursor-pointer border ${surface} px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${line} text-(--accent-readable) hover:border-(--accent-color)`}>Set active</button>
                     )}
                     <button type="button" onClick={() => removeConfig(c)} disabled={busy} className="ml-auto cursor-pointer border-0 bg-transparent p-0 text-[12.5px] font-medium text-rose-500 hover:underline disabled:opacity-50">Delete</button>
                   </div>
@@ -913,7 +985,7 @@ export default function ProviderConfigModal({ provider, onClose }) {
             >
               {busy ? "Saving…" : current ? "Save changes" : "Create configuration"}
             </button>
-          ) : (
+          ) : asPage ? <span /> : (
             <button
               type="button"
               onClick={close}
