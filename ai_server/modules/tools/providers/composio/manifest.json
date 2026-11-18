@@ -1,0 +1,39 @@
+{
+  "provider": {
+    "key": "composio",
+    "slug": "composio",
+    "name": "Composio",
+    "description": "Discover and execute tools from Composio toolkits.",
+    "type": "hosted",
+    "version": "1.0.0",
+    "status": "active",
+    "website": "https://composio.dev",
+    "logo": null
+  },
+  "implementation": {
+    "module": "provider",
+    "class": "ComposioToolProvider"
+  },
+  "capabilities": {
+    "catalog_discovery": true,
+    "tool_execution": true,
+    "tool_testing": true,
+    "webhooks": false,
+    "oauth": true,
+    "mcp": true
+  },
+  "configuration": {
+    "page_size": 100,
+    "max_pages": 1000,
+    "include_deprecated": true,
+    "toolkit_type": "all",
+    "sync_interval_minutes": 0,
+    "toolkit_refresh_hours": 24,
+    "fetch_concurrency": 4
+  },
+  "metadata": {
+    "sdk": "composio",
+    "sdk_version": "0.32.0",
+    "catalog_source": "Composio API v3.1"
+  }
+}

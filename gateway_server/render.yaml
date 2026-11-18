@@ -14,6 +14,10 @@ services:
         sync: false
       - key: FRONTEND_ORIGIN
         sync: false
+      # Shared secret the gateway adds to every request it forwards to the AI server. At least 32 characters; the
+      # AI server must have exactly the same value. There is no default: the gateway will not start without it.
+      - key: AIVERSE_GATEWAY_SECRET
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: DATABASE_USERNAME

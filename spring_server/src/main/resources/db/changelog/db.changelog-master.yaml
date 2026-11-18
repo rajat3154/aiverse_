@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/changes/006-add-llm-provider-logo.yaml
   - include:
       file: db/changelog/changes/007-create-llm-provider-configurations.yaml
+  - include:
+      file: db/changelog/changes/008-create-tools-catalog.yaml
