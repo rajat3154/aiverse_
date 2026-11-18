@@ -11,6 +11,7 @@ dependencies = [
     { name = "aiverse-logging" },
     { name = "asyncpg" },
     { name = "cloudinary" },
+    { name = "composio" },
     { name = "fastapi" },
     { name = "grpcio" },
     { name = "grpcio-tools" },
@@ -34,6 +35,8 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
 ]
 
 [package.metadata]
@@ -42,6 +45,7 @@ requires-dist = [
     { name = "aiverse-logging", directory = "../logging/python" },
     { name = "asyncpg" },
     { name = "cloudinary" },
+    { name = "composio", specifier = ">=0.32,<0.33" },
     { name = "fastapi", specifier = ">=0.162.0" },
     { name = "grpcio" },
     { name = "grpcio-tools" },
@@ -63,7 +67,11 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "httpx", specifier = ">=0.28.1" }]
+dev = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "pytest", specifier = ">=9.2.0" },
+    { name = "pytest-asyncio", specifier = ">=1.5.0" },
+]
 
 [[package]]
 name = "aio-pika"
@@ -527,6 +535,51 @@ wheels = [
 ]
 
 [[package]]
+name = "colorama"
+version = "0.4.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697, upload-time = "2022-10-25T02:36:22.414Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
+]
+
+[[package]]
+name = "composio"
+version = "0.32.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "composio-client" },
+    { name = "json-schema-to-pydantic" },
+    { name = "jsonschema" },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "pysher" },
+    { name = "requests" },
+    { name = "typing-extensions" },
+    { name = "urllib3" },
+    { name = "websocket-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/2b/d895c31fa216120a1d808ddba6f827a0122d3999c41d8c3a69410c842b63/composio-0.32.0.tar.gz", hash = "sha256:c92eecba4bf223cf59dc2a08320885498a86e12d09f7c1222c6b47a5fe1afe2e", size = 475123, upload-time = "2026-11-09T09:35:58.478Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/af/425abf5c444f09f6e7b50e71a75515bc5490fefe34d956f0303cc1de7498/composio-0.32.0-py3-none-any.whl", hash = "sha256:519ba2dd31ef26b867fb4ef2a844c01cd309a147fd8ef6b095de6d3536a86161", size = 256488, upload-time = "2026-11-09T09:35:40.945Z" },
+]
+
+[[package]]
+name = "composio-client"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d9/ab/d3d66a62c13db1c6dfac59630ee26171d1b038f3d4894310abbf82c2d8d4/composio_client-2.1.0.tar.gz", hash = "sha256:58bfa5cd3cd6da1dd9a70692ca795f1a88074f64c5d853d1c219cce4df346234", size = 592013, upload-time = "2026-11-05T12:11:37.958Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/8f/9e64de6f670dbefbec7aaa03b3fca52c28b44b204478861475062a683be7/composio_client-2.1.0-py3-none-any.whl", hash = "sha256:6b1a57ead7fecae314b65b3f10c6f2e537e51de3c9013151f6888208d4997fe4", size = 478016, upload-time = "2026-11-05T12:11:36.218Z" },
+]
+
+[[package]]
 name = "cryptography"
 version = "50.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -938,6 +991,15 @@ wheels = [
 ]
 
 [[package]]
+name = "iniconfig"
+version = "2.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/01/e1/2069291243c926a2ff1cd706c7f3eeb9b62144bf60f77c9fb9ff2fb26bd3/iniconfig-2.3.1.tar.gz", hash = "sha256:67f4b9c50da0dedf52af349e7749a80a9057a5031199791b906c3bb3ae878960", size = 21209, upload-time = "2026-10-06T22:48:38.076Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/56/43/4ca9e49d27a1fcf6bece6f6aec0ea46bb9112489b93d4b688fb415457bdb/iniconfig-2.3.1-py3-none-any.whl", hash = "sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7", size = 7552, upload-time = "2026-10-06T22:48:36.959Z" },
+]
+
+[[package]]
 name = "jiter"
 version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
@@ -998,6 +1060,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/cf/98/8c2a5ab47b4a8b4a9d9b6c12354a3a1497c20b779c44d38732a02e14e1c7/jiter-0.19.0-cp315-cp315t-win32.whl", hash = "sha256:3694d60669e7d8277f6366170a6944f8b9779d85417b3ee6dda3897300528141", size = 185198, upload-time = "2026-11-06T15:03:19.882Z" },
     { url = "https://files.pythonhosted.org/packages/ea/6f/736254f4a132622ee3481d90cf7a521b3b3d0f8c6e3794a87bb10b88388b/jiter-0.19.0-cp315-cp315t-win_amd64.whl", hash = "sha256:093add0b9c12cfa04920cb9fcdc9845ff580fb374ca6a645f6d74f471a5d25f7", size = 224870, upload-time = "2026-11-06T15:03:21.225Z" },
     { url = "https://files.pythonhosted.org/packages/49/cc/9bf0f4ea335a7b9468f7e72c2cc5d19a77f7d9ddf77f7fd9af69f82f489e/jiter-0.19.0-cp315-cp315t-win_arm64.whl", hash = "sha256:9f5ac1f8d1b0eda36d98ab5266c98deddf4d8dc5ff7e031c51f9e9f632abee2f", size = 183185, upload-time = "2026-11-06T15:03:22.475Z" },
+]
+
+[[package]]
+name = "json-schema-to-pydantic"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6c/e2/5c5263ead9368da59121c83ab7a47f9206f70ba1c81d89084bfbe804e851/json_schema_to_pydantic-0.5.0.tar.gz", hash = "sha256:fb115538fe32d28e5689632d0b61da8a4135bbe994313869372a57a3d0aa2cc9", size = 54977, upload-time = "2026-10-21T08:25:31.36Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/b3/c82dbd4872634405a07c281dd51b7bb175b4a762937f65ea0e4635da212b/json_schema_to_pydantic-0.5.0-py3-none-any.whl", hash = "sha256:c484aa2a0f05ac22bc1866762bdaf563faa13f7641ba59e89fb73ff7cb460a27", size = 18302, upload-time = "2026-10-21T08:25:30.093Z" },
 ]
 
 [[package]]
@@ -1463,6 +1537,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pluggy"
+version = "1.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/db/7fc19e6f2dc92a966727031389fc2e08b558f0f25eb7403c1119ad4713cd/pluggy-1.7.0.tar.gz", hash = "sha256:d1eaa46ebb595891b860ab086b4d09c8588af65ebd4361b8e8f4bb8920b90ba8", size = 123304, upload-time = "2026-10-15T09:50:58.343Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/9e/2b38731e0fc536806f16490e1a12d7f0dc2a1235aa8cc07bcc75416a7daa/pluggy-1.7.0-py3-none-any.whl", hash = "sha256:7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec", size = 27082, upload-time = "2026-10-15T09:50:56.808Z" },
+]
+
+[[package]]
 name = "propcache"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1669,6 +1752,53 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/5f/0b/38dbd38c67de7642f87348da70122b89ca4c5fe8227cfdd5cc00c1cdb454/pydantic_core-2.50.2-cp315-cp315t-win32.whl", hash = "sha256:d79aaa468193c1bed6b0560d3c5c9f9e369e3efb0b128b38a2537e2d51d42773", size = 2096972, upload-time = "2026-10-29T16:34:21.715Z" },
     { url = "https://files.pythonhosted.org/packages/7a/df/154baf8413b08d6daf2f5dec211c303ec6bed50c032717f354f8dd85c994/pydantic_core-2.50.2-cp315-cp315t-win_amd64.whl", hash = "sha256:cc488daac19e6f5292180fac5e0ef7efffabeef4e096af9a17a75a7d3d6781f6", size = 2226659, upload-time = "2026-10-29T16:34:23.177Z" },
     { url = "https://files.pythonhosted.org/packages/b5/17/eea7a1e7d98a79ef11b6d31748b70c58f8723f87d7ee42edbb6a101f6245/pydantic_core-2.50.2-cp315-cp315t-win_arm64.whl", hash = "sha256:91315aea7adb51821d4a3378ede953bfdd76e3bf71551de4a82d7638cef7dc02", size = 2166387, upload-time = "2026-10-29T16:34:24.433Z" },
+]
+
+[[package]]
+name = "pygments"
+version = "2.21.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz", hash = "sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c", size = 5005329, upload-time = "2026-08-17T08:02:48.824Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl", hash = "sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9", size = 1250147, upload-time = "2026-08-17T08:02:44.912Z" },
+]
+
+[[package]]
+name = "pysher"
+version = "1.0.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "websocket-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/12/a0/d0638470df605ce266991fb04f74c69ab1bed3b90ac3838e9c3c8b69b66a/Pysher-1.0.8.tar.gz", hash = "sha256:7849c56032b208e49df67d7bd8d49029a69042ab0bb45b2ed59fa08f11ac5988", size = 9071, upload-time = "2022-10-10T13:41:09.936Z" }
+
+[[package]]
+name = "pytest"
+version = "9.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/79/42/bb4641652e58dedeac2ec51abc1f8cae4fee4ec63899a0999016229a0f2a/pytest-9.2.0.tar.gz", hash = "sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b", size = 1797555, upload-time = "2026-10-27T21:30:20.728Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl", hash = "sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588", size = 411776, upload-time = "2026-10-27T21:30:19.131Z" },
+]
+
+[[package]]
+name = "pytest-asyncio"
+version = "1.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/de/80724f9b5b9eca1a654179cae6edc51aaa0a355a9834a736e2a188b91780/pytest_asyncio-1.5.0.tar.gz", hash = "sha256:92c8fa83ca419fd0d4bd6a34df6520dae435841d3733c319343249492adf37f7", size = 146227, upload-time = "2026-11-12T16:35:49.845Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/2d/e600d8f47597a803641704aba367c7266cd621f86561ec36da9888f160ec/pytest_asyncio-1.5.0-py3-none-any.whl", hash = "sha256:557f255ee03cc84f84a8d5f438bc9c6e0f714bf86970ae743c7ecb5a38d7e07d", size = 17215, upload-time = "2026-11-12T16:35:48.446Z" },
 ]
 
 [[package]]
@@ -2215,6 +2345,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/da/34/30e9280707135d2cfc589dfff3cb796bd07a3aeb1a3e415ba09dd89d7bb4/uvicorn-0.54.0.tar.gz", hash = "sha256:a2e33cbfaa0306f8e6b0c13e0cb89d7d7a2da3e62b90c66e18c33d9807b28620", size = 112283, upload-time = "2026-09-25T06:52:37.601Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/38/0c/b54a4fdd7f90a3af8b02ebc9ce6712c2c208b7926a2f7bad95c33ebbe943/uvicorn-0.54.0-py3-none-any.whl", hash = "sha256:505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf", size = 87427, upload-time = "2026-09-25T06:52:35.829Z" },
+]
+
+[[package]]
+name = "websocket-client"
+version = "1.9.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/cb/a5abcc2891249f393827c650c6296660ce40374ac22d99ab9aea41f9d2a2/websocket_client-1.9.2.tar.gz", hash = "sha256:0fcb57545848be86992e128218fd96dd87a6769ffdb1a968dff79632b85604d0", size = 84110, upload-time = "2026-08-31T14:08:40.964Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d5/d2/cc4dc1271e464942db7ee278baae2daa99ee77cb2af744025c04da585a3e/websocket_client-1.9.2-py3-none-any.whl", hash = "sha256:e1a673830a9c7bfa47b1cd3d5e4178f4c9651d80a4eab02c9c23a1c3ec6250ce", size = 95786, upload-time = "2026-08-31T14:08:39.899Z" },
 ]
 
 [[package]]

@@ -702,9 +702,9 @@ export default function MasterDashboard() {
   const iconBtn = `flex h-8 w-8 cursor-pointer items-center justify-center border-0 bg-transparent transition disabled:cursor-not-allowed disabled:opacity-40 ${
     light ? "text-gray-500 hover:bg-black/5 hover:text-gray-900" : "text-[#AEBBCB] hover:bg-white/8 hover:text-white"
   }`;
-  const head = light ? "bg-white" : "bg-gray-950";
+  const head = light ? "bg-white" : "bg-black";
   const line = light ? "border-black/8" : "border-white/12";
-  const card = light ? "bg-white" : "bg-gray-950";
+  const card = light ? "bg-white" : "bg-black";
 
   return (
     <div className={`h-full overflow-y-auto scrollable ${light ? "bg-white text-gray-900" : "bg-black text-white"}`}>
@@ -727,7 +727,7 @@ export default function MasterDashboard() {
 
         <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.label} className={`px-3.5 py-3 sm:px-5 sm:py-4 ${light ? "bg-gray-50" : "bg-gray-950"}`}>
+            <div key={s.label} className={`border px-3.5 py-3 sm:px-5 sm:py-4 ${line} ${light ? "bg-gray-50" : "bg-black"}`}>
               <p className={`text-xs ${muted}`}>{s.label}</p>
               <p className="mt-1 text-xl font-bold sm:text-2xl">{loading ? "–" : s.value}</p>
             </div>
@@ -760,7 +760,7 @@ export default function MasterDashboard() {
           </div>
         </div>
 
-        <div className={`mt-4 overflow-x-auto scrollable ${card}`}>
+        <div className={`mt-4 overflow-x-auto scrollable border ${line} ${card}`}>
           <table className="w-full border-collapse text-left text-[13px]" style={{ minWidth: `${visibleCols.length * 130 + 90}px` }}>
             <thead className={`text-[10.5px] tracking-widest whitespace-nowrap uppercase ${light ? "text-gray-500" : "text-[#C3CEDB]"}`}>
               <tr className={`border-b ${line} ${head}`}>
@@ -790,7 +790,7 @@ export default function MasterDashboard() {
                   const isMaster = u.role === "MASTER";
                   const busy = busyId === u.tenantId;
                   return (
-                    <tr key={u.tenantId} className={`border-b transition-colors last:border-b-0 ${line} ${card} ${light ? "hover:bg-gray-50" : "hover:bg-gray-900"}`}>
+                    <tr key={u.tenantId} className={`border-b transition-colors last:border-b-0 ${line} ${card} ${light ? "hover:bg-gray-50" : "hover:bg-white/5"}`}>
                       {show("dp") && (
                         <td className="sticky left-0 z-10 bg-inherit px-3.5 py-2"><Avatar user={u} premium={isMaster} /></td>
                       )}

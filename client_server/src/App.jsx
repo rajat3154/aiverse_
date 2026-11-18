@@ -8,6 +8,7 @@ import SignupPage from './components/auth/SignupPage'
 import MasterDashboard from './components/master/MasterDashboard'
 import CredentialsPage from './components/credentials/CredentialsPage'
 import LlmProvidersPage from './components/llmproviders/LlmProvidersPage'
+import IntegrationsPage from './components/integrations/IntegrationsPage'
 import { getSession, isAuthenticated } from './services/authService'
 import { ThemeProvider, useTheme } from './context/ThemeContext'
 import ConfirmProvider from './components/shared/ConfirmProvider'
@@ -136,7 +137,7 @@ const App = () => {
   return (
     <ThemeProvider>
       <ConfirmProvider>
-      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/llm-providers' ? <Layout><LlmProvidersPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
+      {path === '/master' ? <Layout><MasterDashboard /></Layout> : path === '/credentials' ? <Layout><CredentialsPage /></Layout> : path === '/llm-providers' ? <Layout><LlmProvidersPage /></Layout> : path === '/integrations' ? <Layout><IntegrationsPage /></Layout> : path === '/login' ? <LoginPage /> : path === '/signup' ? <SignupPage /> : <Layout />}
       </ConfirmProvider>
     </ThemeProvider>
   )

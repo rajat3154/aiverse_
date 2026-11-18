@@ -61,6 +61,9 @@ public class SecurityConfig {
                                     .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                     .requestMatchers("/api/v1/identity/users", "/api/v1/identity/users/**").hasRole("MASTER")
                                     .requestMatchers("/api/v1/identity/llm-providers/*/logo").hasRole("MASTER")
+                                    .requestMatchers("/api/v1/ai/api/integrations/auth-configs", "/api/v1/ai/api/integrations/auth-configs/**").hasRole("MASTER")
+                                    .requestMatchers(HttpMethod.POST, "/api/v1/ai/api/tools/sync").hasRole("MASTER")
+                                    .requestMatchers(HttpMethod.POST, "/api/v1/ai/api/tools/providers/*/sync").hasRole("MASTER")
                                     .anyRequest().authenticated())
                         .exceptionHandling(handling -> handling
                                     .authenticationEntryPoint((request, response, exception) -> {

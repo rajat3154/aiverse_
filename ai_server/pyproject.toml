@@ -27,6 +27,7 @@ dependencies = [
     "langchain-google-genai",
     "langchain-sarvam",
     "langchain-nvidia-ai-endpoints",
+    "composio>=0.32,<0.33",
 ]
 
 [tool.uv.sources]
@@ -35,4 +36,11 @@ aiverse-logging = { path = "../logging/python" }
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"

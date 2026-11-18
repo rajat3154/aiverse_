@@ -16,6 +16,13 @@ from configurations.grpc.server.grpc_server import start_grpc_server, stop_grpc_
 from configurations.databases.database import AsyncSessionLocal, close_database, init_database
 from modules.llm_providers.loader import ProviderLoader
 from modules.llm_providers.registry import provider_registry
+from modules.tools.loader import ToolProviderLoader
+from modules.tools.core.registry import ToolProviderRegistry
+from modules.tools.routes import router as tools_router
+from modules.tools.services.scheduler import ToolSyncScheduler, scheduler_enabled
+from modules.tools.services.synchronization import ToolSynchronizationService
+from modules.integrations.container import close_composio_client
+from modules.integrations.routes import router as integrations_router
 from modules.llm_providers.routes import router as llm_providers_router
 from modules.llm_providers.synchronizer import ProviderSynchronizer
 from configurations.rabbitmqs.handlers import handle_ai_request
@@ -39,10 +46,12 @@ log = get_logger("aiverse.ai_server")
 log_event(log, "INFO", get_message("system.server.initialized"), domain="SYSTEM", action="STARTUP", outcome="COMPLETED")
 
 provider_synchronizer = ProviderSynchronizer()
+tool_provider_registry = ToolProviderRegistry()
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     grpc_server = None
+    tool_sync_scheduler = None
     try:
         await init_database()
 
@@ -57,6 +66,33 @@ async def lifespan(_: FastAPI):
             )
 
         provider_registry.replace_all(loaded_providers)
+
+        # Load generic tool providers without discovering or synchronizing catalogs.
+        tool_provider_loader = ToolProviderLoader()
+        loaded_tool_providers = tool_provider_loader.load_all()
+        tool_provider_registry.replace_all(
+            loaded.create() for loaded in loaded_tool_providers.values()
+        )
+        app.state.tool_provider_registry = tool_provider_registry
+        tool_sync_scheduler = ToolSyncScheduler(
+            tool_provider_registry,
+            ToolSynchronizationService(tool_provider_registry),
+        )
+        app.state.tool_sync_scheduler = tool_sync_scheduler
+        if scheduler_enabled():
+            tool_sync_scheduler.start()
+        log_event(
+            log,
+            "INFO",
+            "Tool providers loaded",
+            domain="TOOLS",
+            action="PROVIDER_INITIALIZATION",
+            outcome="COMPLETED",
+            context={
+                "provider_count": len(tool_provider_registry),
+                "providers": tool_provider_registry.keys(),
+            },
+        )
 
         log_event(
             log,
@@ -101,6 +137,11 @@ async def lifespan(_: FastAPI):
         await rabbitmq.close()
         await redis_manager.close()
         provider_registry.clear()
+        if tool_sync_scheduler is not None:
+            await tool_sync_scheduler.stop()
+        await tool_provider_registry.close_all()
+        close_composio_client()
+        tool_provider_registry.clear()
         await close_database()
 
 
@@ -172,6 +213,8 @@ app.include_router(sse_router)
 app.include_router(websocket_router)
 app.include_router(cloudinary_router)
 app.include_router(llm_providers_router)
+app.include_router(integrations_router)
+app.include_router(tools_router)
 app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
 @app.get("/", tags=["Health"])
@@ -189,12 +232,14 @@ async def health():
     rabbitmq_connected = await rabbitmq.health()
     redis_connected = await redis_manager.health()
     provider_health = provider_registry.health()
+    tool_provider_health = tool_provider_registry.health()
     services = {
         "rabbitmq": "connected" if rabbitmq_connected else "disconnected",
         "redis": "connected" if redis_connected else "disconnected",
         "llm_providers": (
             "connected" if provider_health["initialized"] else "disconnected"
         ),
+        "tool_providers": "loaded" if tool_provider_health else "unavailable",
     }
     healthy = (
         rabbitmq_connected
@@ -208,5 +253,8 @@ async def health():
         "service": "AIVERSE AI Server",
         "services": services,
         "llm_providers": provider_health,
+        "tool_providers": tool_provider_health,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
