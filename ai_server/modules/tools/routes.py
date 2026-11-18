@@ -190,7 +190,7 @@ async def list_toolkits(
     db: AsyncSession = Depends(get_db),
 ):
     """Every app the provider offers, including ones whose tools are not loaded yet (`synced: false`)."""
-    return await ToolkitDirectoryService(registry, tool_catalog_service).list(db, provider_key=provider_key, search=search, enabled=enabl)
+    return await ToolkitDirectoryService(registry, tool_catalog_service).list(db, provider_key=provider_key, search=search, enabled=enabled)
 
 
 @router.post("/toolkits/{toolkit_key}/refresh", response_model=ToolkitRefreshResponse)
