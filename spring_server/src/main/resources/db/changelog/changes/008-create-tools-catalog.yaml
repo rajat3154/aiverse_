@@ -1,0 +1,196 @@
+
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-tools-catalog
+      author: aiverse
+      changes:
+        # Provider registry
+        - createTable:
+            tableName: tool_providers
+            columns:
+              - column: { name: id, type: UUID, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: provider_key, type: VARCHAR(100), constraints: { nullable: false, unique: true, uniqueConstraintName: uk_tool_providers_key } }
+              - column: { name: slug, type: VARCHAR(100), constraints: { nullable: false, unique: true, uniqueConstraintName: uk_tool_providers_slug } }
+              - column: { name: name, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: description, type: TEXT }
+              - column: { name: provider_type, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: status, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: manifest_version, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: manifest_hash, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: manifest, type: JSONB, constraints: { nullable: false } }
+              - column: { name: capabilities, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: sync_interval_minutes, type: INTEGER, defaultValueNumeric: 360, constraints: { nullable: false } }
+              - column: { name: last_synced_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: enabled, type: BOOLEAN, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - createIndex:
+            tableName: tool_providers
+            indexName: idx_tool_providers_enabled
+            columns:
+              - column: { name: enabled }
+
+        - createIndex:
+            tableName: tool_providers
+            indexName: idx_tool_providers_type
+            columns:
+              - column: { name: provider_type }
+
+        # Individual executable tool catalog
+        - createTable:
+            tableName: tool_catalog
+            columns:
+              - column: { name: id, type: UUID, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: provider_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: external_tool_id, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: slug, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: name, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: description, type: TEXT }
+              - column: { name: category, type: VARCHAR(100) }
+              - column: { name: toolkit_key, type: VARCHAR(150) }
+              - column: { name: connector_key, type: VARCHAR(150) }
+              - column: { name: execution_type, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: input_schema, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: output_schema, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: auth_requirements, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: metadata, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: definition_hash, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: version, type: VARCHAR(50) }
+              - column: { name: status, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: enabled, type: BOOLEAN, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: first_seen_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: last_seen_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableName: tool_catalog
+            baseColumnNames: provider_id
+            referencedTableName: tool_providers
+            referencedColumnNames: id
+            constraintName: fk_tool_catalog_provider
+            onDelete: RESTRICT
+
+        - addUniqueConstraint:
+            tableName: tool_catalog
+            columnNames: provider_id, external_tool_id
+            constraintName: uk_tool_catalog_provider_external_id
+
+        - createIndex:
+            tableName: tool_catalog
+            indexName: idx_tool_catalog_provider
+            columns:
+              - column: { name: provider_id }
+
+        - createIndex:
+            tableName: tool_catalog
+            indexName: idx_tool_catalog_category
+            columns:
+              - column: { name: category }
+
+        - createIndex:
+            tableName: tool_catalog
+            indexName: idx_tool_catalog_toolkit
+            columns:
+              - column: { name: toolkit_key }
+
+        - createIndex:
+            tableName: tool_catalog
+            indexName: idx_tool_catalog_enabled
+            columns:
+              - column: { name: enabled }
+
+        # Provider synchronization history
+        - createTable:
+            tableName: tool_sync_history
+            columns:
+              - column: { name: id, type: UUID, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: provider_id, type: UUID }
+              - column: { name: trigger_type, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: status, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: started_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: completed_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: discovered_count, type: INTEGER, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: inserted_count, type: INTEGER, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: updated_count, type: INTEGER, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: unchanged_count, type: INTEGER, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: deactivated_count, type: INTEGER, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: error_details, type: JSONB }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableName: tool_sync_history
+            baseColumnNames: provider_id
+            referencedTableName: tool_providers
+            referencedColumnNames: id
+            constraintName: fk_tool_sync_history_provider
+            onDelete: SET NULL
+
+        - createIndex:
+            tableName: tool_sync_history
+            indexName: idx_tool_sync_history_provider
+            columns:
+              - column: { name: provider_id }
+
+        - createIndex:
+            tableName: tool_sync_history
+            indexName: idx_tool_sync_history_started
+            columns:
+              - column: { name: started_at }
+
+        # Individual tool test history
+        - createTable:
+            tableName: tool_test_history
+            columns:
+              - column: { name: id, type: UUID, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: tool_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: user_id, type: UUID }
+              - column: { name: test_mode, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: status, type: VARCHAR(30), constraints: { nullable: false } }
+              - column: { name: input_snapshot, type: JSONB }
+              - column: { name: output_snapshot, type: JSONB }
+              - column: { name: error_code, type: VARCHAR(100) }
+              - column: { name: error_message, type: TEXT }
+              - column: { name: latency_ms, type: BIGINT }
+              - column: { name: started_at, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: completed_at, type: TIMESTAMP WITH TIME ZONE }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+
+        - addForeignKeyConstraint:
+            baseTableName: tool_test_history
+            baseColumnNames: tool_id
+            referencedTableName: tool_catalog
+            referencedColumnNames: id
+            constraintName: fk_tool_test_history_tool
+            onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseTableName: tool_test_history
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: tenant_id
+            constraintName: fk_tool_test_history_user
+            onDelete: SET NULL
+
+        - createIndex:
+            tableName: tool_test_history
+            indexName: idx_tool_test_history_tool
+            columns:
+              - column: { name: tool_id }
+
+        - createIndex:
+            tableName: tool_test_history
+            indexName: idx_tool_test_history_created
+            columns:
+              - column: { name: created_at }
+
+      rollback:
+        - dropTable:
+            tableName: tool_test_history
+        - dropTable:
+            tableName: tool_sync_history
+        - dropTable:
+            tableName: tool_catalog
+        - dropTable:
+            tableName: tool_providers

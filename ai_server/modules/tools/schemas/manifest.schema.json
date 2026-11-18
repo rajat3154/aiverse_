@@ -1,0 +1,55 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AIverse Tool Provider Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "implementation"],
+  "properties": {
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "slug", "name", "type", "version", "status"],
+      "properties": {
+        "key": {"type": "string", "minLength": 2, "maxLength": 100, "pattern": "^[a-z][a-z0-9_-]*$"},
+        "slug": {"type": "string", "minLength": 2, "maxLength": 100, "pattern": "^[a-z0-9-]+$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 255},
+        "description": {"type": ["string", "null"]},
+        "type": {"type": "string", "enum": ["hosted", "mcp", "rest", "internal"]},
+        "version": {"type": "string", "minLength": 1, "maxLength": 30},
+        "status": {"type": "string", "enum": ["active", "beta", "deprecated", "inactive"]},
+        "website": {"type": ["string", "null"], "format": "uri"},
+        "logo": {"type": ["string", "null"]}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "class"],
+      "properties": {
+        "module": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+        "class": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"}
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "catalog_discovery": {"type": "boolean"},
+        "tool_execution": {"type": "boolean"},
+        "tool_testing": {"type": "boolean"},
+        "webhooks": {"type": "boolean"},
+        "oauth": {"type": "boolean"},
+        "mcp": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

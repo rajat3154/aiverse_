@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { getProfile, getSession, logout } from "../../services/authService";
+import { listProviders } from "../../services/integrationService";
 import SettingsPanel from "./SettingsPanel";
 
 const Icon = ({ size = 15, children }) => (
@@ -18,6 +19,9 @@ const KeyIcon = () => (
 );
 const ProvidersIcon = () => (
   <Icon><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" /></Icon>
+);
+const PlugIcon = () => (
+  <Icon><path d="M9 2v6M15 2v6" /><path d="M6 8h12v4a6 6 0 01-12 0V8z" /><path d="M12 18v4" /></Icon>
 );
 const SettingsIconSmall = () => (
   <Icon size={14}>
@@ -42,7 +46,7 @@ const ChevronIcon = ({ open }) => (
 
 // Static navigation: items only switch the highlighted entry, there is no routing.
 // Which sidebar item is highlighted for a page route
-const ROUTE_ITEMS = { "/master": "master-users", "/credentials": "credentials", "/llm-providers": "llm-providers" };
+const ROUTE_ITEMS = { "/master": "master-users", "/credentials": "credentials", "/llm-providers": "llm-providers", "/integrations": "integrations" };
 
 const navGroups = [
   {
@@ -51,6 +55,7 @@ const navGroups = [
       { id: "home", label: "Home", icon: <HomeIcon />, href: "/" },
       { id: "credentials", label: "Credentials", icon: <KeyIcon />, href: "/credentials" },
       { id: "llm-providers", label: "LLM Providers", icon: <ProvidersIcon />, href: "/llm-providers" },
+      { id: "integrations", label: "Integrations", icon: <PlugIcon />, href: "/integrations" },
     ],
   },
 ];
@@ -94,7 +99,10 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const isMaster = getSession()?.user?.role === "MASTER";
   const [activeItem, setActiveItem] = useState(ROUTE_ITEMS[window.location.pathname] ?? "home");
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [expandedItem, setExpandedItem] = useState(null);
+  // The Integrations entry opens by itself on its own pages so the provider list (Composio) is visible.
+  const [expandedItem, setExpandedItem] = useState(window.location.pathname === "/integrations" ? "integrations" : null);
+  // Providers shown under Integrations. Composio is the default until the server's list arrives.
+  const [providers, setProviders] = useState([{ provider_key: "composio", name: "Composio" }]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsTriggerRef = useRef(null);
 
@@ -105,6 +113,16 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const userRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    listProviders()
+      .then((list) => !cancelled && Array.isArray(list) && list.length > 0 && setProviders(list))
+      .catch(() => {}); // keep the default entry
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,7 +178,9 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
 
           const handleClick = () => {
             if (hasChildren) {
-              if (!collapsed) toggleExpanded(item.id);
+              // a parent with its own page (Integrations) goes there first, then opens/closes its list
+              if (item.href && window.location.pathname !== item.href) window.location.assign(item.href);
+              else if (!collapsed) toggleExpanded(item.id);
             } else if (item.href && window.location.pathname !== item.href) {
               window.location.assign(item.href); // pages are separate routes, not in-app state
             } else {
@@ -212,12 +232,19 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
                   <div className="overflow-hidden">
                     <div className={`ml-6.5 mr-2 mt-1 mb-2 pl-4 border-l flex flex-col gap-1 ${isLight ? "border-[#E5E4E7]" : "border-[#263241]/60"}`}>
                       {item.children.map((child, index) => {
-                        const isChildActive = activeItem === child.id;
+                        // children with an href are real pages (/integrations?provider=composio); the rest only switch the highlight
+                        const isChildActive = child.href
+                          ? window.location.pathname + window.location.search === child.href
+                          : activeItem === child.id;
                         return (
                           <button
                             key={child.id}
                             type="button"
-                            onClick={() => { setActiveItem(child.id); onMobileClose?.(); }}
+                            aria-current={isChildActive ? "page" : undefined}
+                            onClick={() => {
+                              if (child.href && window.location.pathname + window.location.search !== child.href) window.location.assign(child.href);
+                              else { setActiveItem(child.id); onMobileClose?.(); }
+                            }}
                             className={`text-left text-sm rounded-md px-3 py-2 cursor-pointer border-0 bg-transparent transition-all duration-200 ${
                               isExpanded ? "translate-y-0 opacity-100" : "-translate-y-1 opacity-0"
                             } ${
@@ -311,6 +338,21 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 scrollable">
         {navGroups
+          .map((group) => ({
+            ...group,
+            items: group.items.map((item) =>
+              item.id === "integrations"
+                ? {
+                    ...item,
+                    children: providers.map((provider) => ({
+                      id: `integrations-${provider.provider_key}`,
+                      label: provider.name || provider.provider_key,
+                      href: `/integrations?provider=${encodeURIComponent(provider.provider_key)}`,
+                    })),
+                  }
+                : item,
+            ),
+          }))
           .map((group) => ({
             ...group,
             // the master account gets Users right below Home and has no credentials page
