@@ -4,6 +4,7 @@ import { useConfirm } from "../../hooks/useConfirm";
 import { useIntegrationConnections } from "../../hooks/useIntegrationConnections";
 import { getSession } from "../../services/authService";
 import { listToolkits } from "../../services/integrationService";
+import McpToolboxCatalog from "../databasetoolbox/McpToolboxCatalog";
 import AdminBar from "./AdminBar";
 import MarketplaceTab from "./MarketplaceTab";
 import MyConnectionsTab from "./MyConnectionsTab";
@@ -16,7 +17,7 @@ const NOTICE_TONES = {
   info: "bg-(--accent-soft) text-(--accent-readable)",
 };
 
-export default function IntegrationsPage() {
+function ToolkitIntegrations() {
   const { mainSectionTheme } = useTheme();
   // Only decides whether the admin strip shows; the gateway rejects the sync endpoint for any other role.
   const isMaster = getSession()?.user?.role === "MASTER";
@@ -140,4 +141,10 @@ export default function IntegrationsPage() {
       )}
     </div>
   );
+}
+
+// The MCP Toolbox provider is a list of databases to connect to rather than apps to authorize, so it has its own page.
+export default function IntegrationsPage() {
+  const provider = new URLSearchParams(window.location.search).get("provider");
+  return provider === "mcp_toolbox" ? <McpToolboxCatalog /> : <ToolkitIntegrations />;
 }

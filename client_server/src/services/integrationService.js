@@ -90,6 +90,9 @@ const request = async (base, path, options = {}) => {
   return data;
 };
 
+/** Any AI-server endpoint under /api, for features that have their own module (e.g. database connections). */
+export const aiApi = (path, options) => request(`${API_ROUTES.ai}/api`, path, options);
+
 const tools = (path, options) => request(TOOLS, path, options);
 const integrations = (path, options) => request(INTEGRATIONS, path, options);
 

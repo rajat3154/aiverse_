@@ -6,7 +6,7 @@ import { EmptyState, Skeleton, StatusDot, ToolkitLogo } from "./ui";
 
 export default function MyConnectionsTab({ connections, toolkitBySlug, loading, busy, isLight, onManage, onDisconnect, onBrowse }) {
   const styles = getStyles(isLight);
-  const [sortId, setSortId] = useState("recent");
+  const [sortId, setSortId] = useState("status");
   const sorted = connections
     .map((connection) => ({ ...connection, toolkitName: toolkitBySlug[connection.toolkit?.slug]?.name ?? connection.toolkit?.slug }))
     .sort(CONNECTION_SORTS.find((option) => option.id === sortId).compare);
@@ -40,36 +40,51 @@ export default function MyConnectionsTab({ connections, toolkitBySlug, loading, 
           ))}
         </select>
       </div>
-      <div className="flex flex-col gap-2">
-        {sorted.map((connection) => {
-          const slug = connection.toolkit?.slug;
-          const toolkit = toolkitBySlug[slug] ?? { slug, name: slug };
-          return (
-            <article key={connection.id} className={styles.row}>
-              <ToolkitLogo toolkit={toolkit} isLight={isLight} />
-              <div className="min-w-0 flex-1 basis-40">
-                <h3 className="truncate text-sm font-semibold">{toolkit.name || "Account"}</h3>
-                <p className={`truncate text-xs ${styles.muted}`}>
-                  {connection.alias || `Account ${connection.id.slice(-6)}`}
-                  {connection.auth_scheme ? ` · ${connection.auth_scheme.replace(/_/g, " ").toLowerCase()}` : ""}
-                </p>
-                {connection.status_reason && connection.status !== "ACTIVE" && (
-                  <p className="mt-0.5 truncate text-xs text-rose-400">{connection.status_reason}</p>
-                )}
-              </div>
-              <div className="hidden w-44 shrink-0 text-xs md:block">
-                <StatusDot status={connection.status} label={STATUS_LABELS[connection.status] ?? connection.status} />
-                <p className={`mt-0.5 ${styles.muted}`}>{connection.updated_at ? `Updated ${formatTime(connection.updated_at)}` : ""}</p>
-              </div>
-              <div className="flex w-full shrink-0 justify-end gap-2 sm:w-auto">
-                <button type="button" className={styles.button} onClick={() => onManage(toolkit)}>Manage</button>
-                <button type="button" className={styles.danger} disabled={busy === connection.id} onClick={() => onDisconnect(connection, toolkit.name)}>
-                  {busy === connection.id ? "…" : "Disconnect"}
-                </button>
-              </div>
-            </article>
-          );
-        })}
+      <div className={`overflow-x-auto border ${isLight ? "border-black/8" : "border-white/10"}`}>
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className={`${isLight ? "bg-black/2 text-gray-500" : "bg-white/5 text-[#AEBBCB]"}`}>
+              {["Integration", "Account", "Status", "Updated", ""].map((heading) => (
+                <th key={heading || "actions"} className={`whitespace-nowrap px-4 py-3 ${styles.label}`}>{heading}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((connection) => {
+              const slug = connection.toolkit?.slug;
+              const toolkit = toolkitBySlug[slug] ?? { slug, name: slug };
+              return (
+                <tr key={connection.id} className={`border-t align-middle ${styles.divider}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <ToolkitLogo toolkit={toolkit} isLight={isLight} />
+                      <span className="truncate text-sm font-semibold">{toolkit.name || "Account"}</span>
+                    </div>
+                  </td>
+                  <td className={`whitespace-nowrap px-4 py-3 text-[13px] ${styles.body}`}>
+                    {connection.alias || `Account ${connection.id.slice(-6)}`}
+                    {connection.auth_scheme ? <span className={styles.muted}>{` · ${connection.auth_scheme.replace(/_/g, " ").toLowerCase()}`}</span> : null}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    <StatusDot status={connection.status} label={STATUS_LABELS[connection.status] ?? connection.status} />
+                    {connection.status_reason && connection.status !== "ACTIVE" && (
+                      <p className="mt-0.5 max-w-64 text-xs text-rose-400">{connection.status_reason}</p>
+                    )}
+                  </td>
+                  <td className={`whitespace-nowrap px-4 py-3 text-xs ${styles.muted}`}>{connection.updated_at ? formatTime(connection.updated_at) : "-"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <button type="button" className={styles.button} onClick={() => onManage(toolkit)}>Manage</button>
+                      <button type="button" className={styles.danger} disabled={busy === connection.id} onClick={() => onDisconnect(connection, toolkit.name)}>
+                        {busy === connection.id ? "…" : "Disconnect"}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </>
   );

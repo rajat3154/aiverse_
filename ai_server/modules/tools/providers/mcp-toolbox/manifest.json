@@ -1,0 +1,31 @@
+{
+  "provider": {
+    "key": "mcp_toolbox",
+    "slug": "mcp-toolbox",
+    "name": "MCP Toolbox",
+    "description": "Database sources from MCP Toolbox that can be connected, tested and saved.",
+    "type": "internal",
+    "version": "1.0.0",
+    "status": "active",
+    "website": "https://googleapis.github.io/genai-toolbox/",
+    "logo": null
+  },
+  "implementation": {
+    "module": "provider",
+    "class": "McpToolboxProvider"
+  },
+  "capabilities": {
+    "catalog_discovery": true,
+    "tool_execution": false,
+    "tool_testing": false,
+    "webhooks": false,
+    "oauth": false,
+    "mcp": true
+  },
+  "configuration": {
+    "sync_interval_minutes": 0
+  },
+  "metadata": {
+    "catalog_source": "Bundled database source list"
+  }
+}

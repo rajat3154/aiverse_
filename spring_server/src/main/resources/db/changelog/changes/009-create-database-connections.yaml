@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-database-connections
+      author: aiverse
+      changes:
+        - createTable:
+            tableName: database_connections
+            columns:
+              - column: { name: id, type: UUID, defaultValueComputed: gen_random_uuid(), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: user_id, type: UUID, constraints: { nullable: false } }
+              - column: { name: name, type: VARCHAR(150), constraints: { nullable: false } }
+              - column: { name: source_slug, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: configuration, type: JSONB, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: secret_configuration, type: TEXT }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: CURRENT_TIMESTAMP, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: database_connections
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: tenant_id
+            constraintName: fk_database_connections_user
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: database_connections
+            columnNames: user_id, name
+            constraintName: uk_database_connections_user_name
+      rollback:
+        - dropTable:
+            tableName: database_connections

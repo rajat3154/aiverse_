@@ -1,0 +1,1258 @@
+{
+ "commit": "24762d91babd43d91afc3daeeece1cb446266c54",
+ "sources": {
+  "alloydb-postgres": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/alloydb/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "region",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "cluster",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "ipType",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "arcadedb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/arcadedb/source/",
+   "fields": [
+    {
+     "name": "uri",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "httpUri",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "httpScheme",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "httpPort",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "bigquery": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/bigquery/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "location",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "writeMode",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "allowedDatasets",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "useClientOAuth",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "scopes",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "impersonateServiceAccount",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "maxQueryResultRows",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "maximumBytesBilled",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "apiEndpoint",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "bigtable": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/bigtable/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": true
+    }
+   ]
+  },
+  "cassandra": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/cassandra/source/",
+   "fields": [
+    {
+     "name": "hosts",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "keyspace",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "protoVersion",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "caPath",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "certPath",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "keyPath",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "clickhouse": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/clickhouse/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 8443
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "protocol",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "cloud-sql-mssql": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/cloud-sql-mssql/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "region",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "ipType",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "cloud-sql-mysql": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/cloud-sql-mysql/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "region",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "ipType",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "cloud-sql-postgres": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/cloud-sql-pg/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "region",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "ipType",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "cockroachdb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/cockroachdb/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 26257
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "maxRetries",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "retryBaseDelay",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "maxRowLimit",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "queryTimeoutSec",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "clusterID",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "couchbase": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/couchbase/source/",
+   "fields": [
+    {
+     "name": "connectionString",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "bucket",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "scope",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "clientCert",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "clientCertPassword",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "clientKey",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "clientKeyPassword",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "caCert",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "profile",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "queryScanConsistency",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "dgraph": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/dgraph/source/",
+   "fields": [
+    {
+     "name": "dgraphUrl",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "apiKey",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "namespace",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "elasticsearch": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/elasticsearch/source/",
+   "fields": [
+    {
+     "name": "addresses",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "apikey",
+     "type": "secret",
+     "required": true
+    }
+   ]
+  },
+  "falkordb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/falkordb/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 6379
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "graph",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "queryTimeoutMs",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "firebird": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/firebird/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 3050
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    }
+   ]
+  },
+  "firestore": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/firestore/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "mindsdb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/mindsdb/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 3306
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "queryTimeout",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "mongodb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/mongodb/source/",
+   "fields": [
+    {
+     "name": "uri",
+     "type": "string",
+     "required": true
+    }
+   ]
+  },
+  "mssql": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/mssql/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 1433
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "encrypt",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "mysql": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/mysql/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 3306
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "queryTimeout",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "neo4j": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/neo4j/source/",
+   "fields": [
+    {
+     "name": "uri",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    }
+   ]
+  },
+  "oceanbase": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/oceanbase/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 2881
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "queryTimeout",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "oracle": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/oracle/source/",
+   "fields": [
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "host",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": false,
+     "default": 1521
+    },
+    {
+     "name": "serviceName",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "connectionString",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "tnsAlias",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "tnsAdmin",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "walletLocation",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "postgres": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/postgres/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 5432
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "queryExecMode",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "connectTimeout",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "redis": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/redis/source/",
+   "fields": [
+    {
+     "name": "address",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "database",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "scylladb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/scylladb/source/",
+   "fields": [
+    {
+     "name": "hosts",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "keyspace",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "protoVersion",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "localDC",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "caPath",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "certPath",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "keyPath",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "singlestore": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/singlestore/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 3306
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "queryTimeout",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "snowflake": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/snowflake/source/",
+   "fields": [
+    {
+     "name": "account",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "schema",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "warehouse",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "role",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "spanner": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/spanner/source/",
+   "fields": [
+    {
+     "name": "project",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "instance",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "dialect",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "instanceType",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniEndpoint",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniCaCertificateFile",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniClientCertificateFile",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniClientKeyFile",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniUsername",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "omniPassword",
+     "type": "secret",
+     "required": false
+    }
+   ]
+  },
+  "sqlite": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/sqlite/source/",
+   "fields": [
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    }
+   ]
+  },
+  "tidb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/tidb/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    }
+   ]
+  },
+  "trino": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/trino/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 8080
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "catalog",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "schema",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "queryTimeout",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "accessToken",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "sslCertPath",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "sslCert",
+     "type": "string",
+     "required": false
+    }
+   ]
+  },
+  "valkey": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/valkey/source/",
+   "fields": [
+    {
+     "name": "address",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "username",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": false
+    },
+    {
+     "name": "database",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  },
+  "yugabytedb": {
+   "documentation_url": "https://mcp-toolbox.dev/documentation/integrations/yuagbytedb/source/",
+   "fields": [
+    {
+     "name": "host",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "port",
+     "type": "integer",
+     "required": true,
+     "default": 5433
+    },
+    {
+     "name": "database",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "user",
+     "type": "string",
+     "required": true
+    },
+    {
+     "name": "password",
+     "type": "secret",
+     "required": true
+    },
+    {
+     "name": "topologyKeys",
+     "type": "string",
+     "required": false
+    },
+    {
+     "name": "ybServersRefreshInterval",
+     "type": "integer",
+     "required": false
+    },
+    {
+     "name": "failedHostReconnectDelaySecs",
+     "type": "integer",
+     "required": false
+    }
+   ]
+  }
+ }
+}

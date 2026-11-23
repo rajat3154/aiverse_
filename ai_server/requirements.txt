@@ -21,3 +21,7 @@ langchain-google-genai
 langchain-sarvam
 langchain-nvidia-ai-endpoints
 composio>=0.32,<0.33
+cryptography
+pymysql
+pymongo
+oracledb

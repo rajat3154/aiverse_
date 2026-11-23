@@ -70,6 +70,9 @@ def _schema_summary(tool) -> dict[str, Any]:
     }
 
 
+_DISPLAY_KEYS = ("logo", "documentation_url", "default_port", "requires_secret")
+
+
 def _summary(tool, provider) -> dict[str, Any]:
     return {
         "id": tool.id,
@@ -85,6 +88,7 @@ def _summary(tool, provider) -> dict[str, Any]:
         "status": tool.status,
         "enabled": tool.enabled,
         "last_seen_at": tool.last_seen_at,
+        "display": {key: value for key, value in (tool.tool_metadata or {}).items() if key in _DISPLAY_KEYS},
         **_schema_summary(tool),
     }
 

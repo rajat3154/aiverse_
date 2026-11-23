@@ -19,6 +19,7 @@ from modules.llm_providers.registry import provider_registry
 from modules.tools.loader import ToolProviderLoader
 from modules.tools.core.registry import ToolProviderRegistry
 from modules.tools.routes import router as tools_router
+from modules.database_toolbox.routes import router as database_connections_router
 from modules.tools.services.scheduler import ToolSyncScheduler, scheduler_enabled
 from modules.tools.services.synchronization import ToolSynchronizationService
 from modules.integrations.container import close_composio_client
@@ -74,6 +75,11 @@ async def lifespan(app: FastAPI):
             loaded.create() for loaded in loaded_tool_providers.values()
         )
         app.state.tool_provider_registry = tool_provider_registry
+        if "mcp_toolbox" in tool_provider_registry.keys():
+            try:
+                await ToolSynchronizationService(tool_provider_registry).sync_provider("mcp_toolbox", trigger_type="startup")
+            except Exception:
+                log_event(log, "WARNING", get_message("tool.toolbox.sync.failed"), domain="TOOL", action="PROVIDER_SYNC", outcome="FAILURE", exc_info=True)
         tool_sync_scheduler = ToolSyncScheduler(
             tool_provider_registry,
             ToolSynchronizationService(tool_provider_registry),
@@ -215,6 +221,7 @@ app.include_router(cloudinary_router)
 app.include_router(llm_providers_router)
 app.include_router(integrations_router)
 app.include_router(tools_router)
+app.include_router(database_connections_router)
 app.mount("/socket.io", socketio.ASGIApp(sio, socketio_path=""))
 
 @app.get("/", tags=["Health"])

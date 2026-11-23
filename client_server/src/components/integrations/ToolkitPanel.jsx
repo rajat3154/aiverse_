@@ -114,12 +114,12 @@ export default function ToolkitPanel({ toolkit, connections, busy, isLight, onCl
         role="dialog"
         aria-modal="true"
         aria-label={`${toolkit.name} integration`}
-        className={`absolute inset-y-0 right-0 flex w-full max-w-5xl flex-col overflow-y-auto overscroll-contain border-l shadow-2xl outline-none transition-transform duration-200 ease-out md:flex-row md:overflow-hidden ${
+        className={`scrollable absolute inset-y-0 right-0 flex w-full max-w-5xl flex-col overflow-y-auto overscroll-contain border-l shadow-2xl outline-none transition-transform duration-200 ease-out md:flex-row md:overflow-hidden ${
           entered ? "translate-x-0" : "translate-x-full"
         } ${isLight ? "border-[#E5E4E7] bg-white text-gray-900" : "border-[#263241]/60 bg-black text-white"}`}
       >
         {/* Left: who/what/auth */}
-        <div className={`flex flex-col gap-5 border-b p-5 md:w-80 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r ${styles.line}`}>
+        <div className={`scrollable flex flex-col gap-5 border-b p-5 md:w-80 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r ${styles.line}`}>
           <div className="flex items-start justify-between gap-3">
             <ToolkitLogo toolkit={toolkit} isLight={isLight} size="lg" />
             <button type="button" className={styles.button} onClick={onClose} aria-label="Close">✕</button>
@@ -180,7 +180,7 @@ export default function ToolkitPanel({ toolkit, connections, busy, isLight, onCl
         </div>
 
         {/* Right: tool browser + runner */}
-        <div className="flex min-w-0 flex-1 flex-col gap-4 p-5 md:overflow-y-auto">
+        <div className="scrollable flex min-w-0 flex-1 flex-col gap-4 p-5 md:overflow-y-auto">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className={`m-0 ${styles.label}`}>

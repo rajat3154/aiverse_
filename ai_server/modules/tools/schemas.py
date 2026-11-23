@@ -52,6 +52,7 @@ class ToolSummaryResponse(BaseModel):
     requires_connection: bool
     required_parameters: list[str] = Field(default_factory=list)
     parameter_count: int = 0
+    display: dict[str, Any] = Field(default_factory=dict)
     version: str | None = None
     status: str
     enabled: bool
