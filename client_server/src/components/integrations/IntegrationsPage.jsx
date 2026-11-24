@@ -24,7 +24,7 @@ function ToolkitIntegrations() {
   const confirm = useConfirm();
   const isLight = mainSectionTheme === "light";
   const styles = getStyles(isLight);
-  const { connections, loaded, error: connectionError, busy, notice, setNotice, connect, disconnect } = useIntegrationConnections(confirm);
+  const { connections: allConnections, loaded, error: connectionError, busy, notice, setNotice, connect, disconnect } = useIntegrationConnections(confirm);
 
   const [toolkits, setToolkits] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
@@ -33,6 +33,8 @@ function ToolkitIntegrations() {
   const [panelToolkit, setPanelToolkit] = useState(null);
   // /integrations?provider=composio (the sidebar's provider entry) narrows the marketplace to one provider.
   const providerFilter = useMemo(() => new URLSearchParams(window.location.search).get("provider"), []);
+  // Connected accounts are Composio's. Under another provider's menu entry (e.g. Apps / YouTube) there are none to show.
+  const connections = useMemo(() => (providerFilter && providerFilter !== "composio" ? [] : allConnections), [providerFilter, allConnections]);
 
   const loadCatalog = useCallback(() => {
     let cancelled = false;
@@ -54,6 +56,11 @@ function ToolkitIntegrations() {
   const toolkitBySlug = useMemo(() => Object.fromEntries(toolkits.map((t) => [t.slug, t])), [toolkits]);
   const activeSlugs = useMemo(() => new Set(connections.filter((c) => c.status === "ACTIVE").map((c) => c.toolkit?.slug)), [connections]);
   const connectionState = useCallback((toolkit) => (activeSlugs.has(toolkit.slug) ? "connected" : toolkit.no_auth ? "open" : "idle"), [activeSlugs]);
+  // A provider with one app that needs no sign-in (YouTube) opens that app's tool panel straight away, the same panel
+  // Composio apps use. Closing it leaves the app card behind.
+  const soloToolkit = providerFilter && !catalogLoading && toolkits.length === 1 && toolkits[0].no_auth ? toolkits[0] : null;
+  const [soloDismissed, setSoloDismissed] = useState(false);
+  const openToolkit = panelToolkit ?? (soloToolkit && !soloDismissed ? soloToolkit : null);
   const connectedCount = toolkits.filter((t) => activeSlugs.has(t.slug)).length;
 
   const tabs = [
@@ -127,14 +134,17 @@ function ToolkitIntegrations() {
         )}
       </div>
 
-      {panelToolkit && (
+      {openToolkit && (
         <ToolkitPanel
-          key={panelToolkit.slug}
-          toolkit={toolkitBySlug[panelToolkit.slug] ?? panelToolkit}
+          key={openToolkit.slug}
+          toolkit={toolkitBySlug[openToolkit.slug] ?? openToolkit}
           connections={connections}
           busy={busy}
           isLight={isLight}
-          onClose={() => setPanelToolkit(null)}
+          onClose={() => {
+            setPanelToolkit(null);
+            setSoloDismissed(true);
+          }}
           onConnect={connect}
           onDisconnect={disconnect}
         />

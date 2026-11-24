@@ -68,6 +68,9 @@ const UsersIcon = () => (
 const masterItem = { id: "master-users", label: "Users", icon: <UsersIcon />, href: "/master" };
 
 // Below md the sidebar is an off-canvas drawer (mobileOpen); from md up it sits in the layout and can collapse to icons.
+// Sidebar names that differ from the provider's own name.
+const PROVIDER_MENU_LABELS = { youtube: "Apps" };
+
 export default function Sidebar({ mobileOpen = false, onMobileClose }) {
   const theme = useTheme();
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -346,7 +349,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose }) {
                     ...item,
                     children: providers.map((provider) => ({
                       id: `integrations-${provider.provider_key}`,
-                      label: provider.name || provider.provider_key,
+                      label: PROVIDER_MENU_LABELS[provider.provider_key] || provider.name || provider.provider_key,
                       href: `/integrations?provider=${encodeURIComponent(provider.provider_key)}`,
                     })),
                   }

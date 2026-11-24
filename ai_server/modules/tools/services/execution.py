@@ -136,6 +136,7 @@ class ToolExecutionService:
         connected_account_id: str | None = None,
         request_id: str | None = None,
         mode: str = MODE_EXECUTE,
+        credential_id: str | None = None,
     ) -> ToolExecutionResult:
         user_uuid = self._user_uuid(user_id)
         tool, provider_record = await self._load_tool(db, tool_id)
@@ -158,7 +159,7 @@ class ToolExecutionService:
         context = ToolExecutionContext(
             user_id=str(user_uuid),
             request_id=request_id,
-            metadata={"connected_account_id": account.id if account else None, "tool_id": str(tool_pk)},
+            metadata={"connected_account_id": account.id if account else None, "tool_id": str(tool_pk), "credential_id": credential_id},
         )
         started_at = datetime.now(UTC)
         clock = time.perf_counter()
@@ -306,6 +307,7 @@ class ToolExecutionService:
         user_id: str,
         connected_account_id: str | None = None,
         request_id: str | None = None,
+        credential_id: str | None = None,
     ) -> dict[str, Any]:
         """Pre-flight, then a REAL execution through the provider's test path. Only reachable with live=true."""
         report = await self.preflight(db, tool_id, arguments, user_id, connected_account_id)
@@ -326,7 +328,7 @@ class ToolExecutionService:
             )
             return {"mode": "live", "executed": False, "execution": None, **report}
 
-        result = await self.execute(db,tool_id,arguments,user_id,connected_account_id=report["connected_account_id"],request_id=request_id,mode=MODE_LIVE_TEST)
+        result = await self.execute(db,tool_id,arguments,user_id,connected_account_id=report["connected_account_id"],request_id=request_id,mode=MODE_LIVE_TEST,credential_id=credential_id)
         return {
             "mode": "live",
             "executed": True,

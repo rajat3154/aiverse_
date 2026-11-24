@@ -1,0 +1,133 @@
+[
+  {
+    "id": "youtube_search_videos",
+    "name": "Search YouTube Videos",
+    "description": "Search YouTube videos by keyword, ordered by relevance, date, view count or rating.",
+    "category": "search",
+    "properties": {
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Search phrase."
+      },
+      "max_results": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "default": 10
+      },
+      "order": {
+        "type": "string",
+        "enum": [
+          "relevance",
+          "date",
+          "viewCount",
+          "rating"
+        ],
+        "default": "relevance"
+      }
+    },
+    "required": [
+      "query"
+    ]
+  },
+  {
+    "id": "youtube_get_transcript",
+    "name": "Get YouTube Transcript",
+    "description": "Extract a video's transcript in the preferred languages, split into chunks. No API key needed.",
+    "category": "retrieval",
+    "properties": {
+      "video_url": {
+        "type": "string",
+        "minLength": 1,
+        "description": "YouTube video URL or video ID."
+      },
+      "languages": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [
+          "en"
+        ]
+      },
+      "chunk_size": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 10000,
+        "default": 3000
+      }
+    },
+    "required": [
+      "video_url"
+    ]
+  },
+  {
+    "id": "youtube_get_playlist_videos",
+    "name": "Get YouTube Playlist Videos",
+    "description": "List the videos of a YouTube playlist with their positions.",
+    "category": "retrieval",
+    "properties": {
+      "playlist_url": {
+        "type": "string",
+        "minLength": 1,
+        "description": "YouTube playlist URL or playlist ID."
+      },
+      "max_results": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "default": 50
+      }
+    },
+    "required": [
+      "playlist_url"
+    ]
+  },
+  {
+    "id": "youtube_get_video",
+    "name": "Get YouTube Video Details",
+    "description": "Read a video's title, views, likes, duration and other metadata.",
+    "category": "retrieval",
+    "properties": {
+      "video_url": {
+        "type": "string",
+        "minLength": 1,
+        "description": "YouTube video URL or video ID."
+      }
+    },
+    "required": [
+      "video_url"
+    ]
+  },
+  {
+    "id": "youtube_get_comments",
+    "name": "Get YouTube Video Comments",
+    "description": "Read a video's top comments with author, likes and reply counts.",
+    "category": "retrieval",
+    "properties": {
+      "video_url": {
+        "type": "string",
+        "minLength": 1,
+        "description": "YouTube video URL or video ID."
+      },
+      "max_results": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "default": 20
+      },
+      "order": {
+        "type": "string",
+        "enum": [
+          "relevance",
+          "time"
+        ],
+        "default": "relevance"
+      }
+    },
+    "required": [
+      "video_url"
+    ]
+  }
+]

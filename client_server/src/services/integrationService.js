@@ -139,12 +139,12 @@ export const listToolkits = async ({ search, provider } = {}) => {
  * the stored tools are missing or a day old (15 minutes for `force`), otherwise it answers { status: "fresh" } at once.
  * Resolves to { status: "fresh"|"success"|"partial", synced_at, next_refresh_at, counts }.
  */
-export const refreshToolkit = (toolkitKey, { force = false } = {}) =>
-  tools(`/toolkits/${encodeURIComponent(toolkitKey)}/refresh`, post({ force }));
+export const refreshToolkit = (toolkitKey, { force = false, provider } = {}) =>
+  tools(`/toolkits/${encodeURIComponent(toolkitKey)}/refresh${query({ provider_key: provider })}`, post({ force }));
 
 /** Tools of one toolkit, paginated and searched on the server. @returns {Promise<{items: Tool[], total: number, page: number, total_pages: number}>} */
-export const listTools = (toolkitKey, { search, page = 1, pageSize = 50, sort = "name", order = "asc" } = {}) =>
-  tools(`/catalog${query({ toolkit_key: toolkitKey, search, page, page_size: pageSize, sort, order })}`);
+export const listTools = (toolkitKey, { provider, search, page = 1, pageSize = 50, sort = "name", order = "asc" } = {}) =>
+  tools(`/catalog${query({ provider_key: provider, toolkit_key: toolkitKey, search, page, page_size: pageSize, sort, order })}`);
 
 /** One tool including its JSON input schema. */
 export const getTool = (toolId) => tools(`/${encodeURIComponent(toolId)}`);
@@ -156,12 +156,12 @@ export const getTool = (toolId) => tools(`/${encodeURIComponent(toolId)}`);
  * `connection_required` if there is none, and 409 `ambiguous_connection` (with `error.details.candidates`) if several.
  * Resolves to { success, data, error, metadata }. A tool-level failure is success:false, not a thrown error.
  */
-export const executeTool = (toolId, args, connectedAccountId) =>
-  tools("/execute", post({ tool_id: toolId, arguments: args, connected_account_id: connectedAccountId || null }));
+export const executeTool = (toolId, args, connectedAccountId, credentialId) =>
+  tools("/execute", post({ tool_id: toolId, arguments: args, connected_account_id: connectedAccountId || null, credential_id: credentialId || null }));
 
 /** Dry run by default: validates the tool, arguments and account without running anything. `live: true` also runs it. */
-export const testTool = (toolId, args, connectedAccountId, { live = false } = {}) =>
-  tools(`/${encodeURIComponent(toolId)}/test`, post({ arguments: args, connected_account_id: connectedAccountId || null, live }));
+export const testTool = (toolId, args, connectedAccountId, { live = false, credentialId } = {}) =>
+  tools(`/${encodeURIComponent(toolId)}/test`, post({ arguments: args, connected_account_id: connectedAccountId || null, credential_id: credentialId || null, live }));
 
 /** The signed-in user's recent runs across all tools. */
 export const listMyRuns = ({ page = 1, pageSize = 20, status, mode, toolId } = {}) =>
