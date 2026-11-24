@@ -14,6 +14,7 @@ public enum CredentialIdentifier {
       PERPLEXITY_API_KEY,
       XAI_API_KEY,
       SARVAM_API_KEY,
+      YOUTUBE_API_KEY,
 
       // OAuth clients
       GOOGLE_CLIENT_ID,

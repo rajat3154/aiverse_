@@ -75,6 +75,7 @@ class ToolExecutionRequest(BaseModel):
     tool_id: UUID
     arguments: dict[str, Any] = Field(default_factory=dict)
     connected_account_id: str | None = None
+    credential_id: UUID | None = None
 
 class ToolTestRequest(BaseModel):
     """Body of POST /api/tools/{tool_id}/test. The tool comes from the URL (a stray tool_id is ignored).
@@ -82,6 +83,7 @@ class ToolTestRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     arguments: dict[str, Any] = Field(default_factory=dict)
     connected_account_id: str | None = None
+    credential_id: UUID | None = None
     live: bool = False
 
 class ToolExecutionResponse(BaseModel):

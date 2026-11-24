@@ -1,7 +1,10 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useConfirm } from "../../hooks/useConfirm";
+import { listCredentials } from "../../services/credentialService";
 import { executeTool, getTool, testTool } from "../../services/integrationService";
 import { getStyles, STATUS_TONES } from "./styles";
+import DocumentResults from "./DocumentResults";
+import { isDocumentOutput } from "./format";
 import { Chip, Skeleton, ToolkitLogo } from "./ui";
 
 const MAX_OUTPUT_CHARS = 20_000;
@@ -474,6 +477,8 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
   const [loaded, setLoaded] = useState({ id: null, detail: null, error: "" });
   const [values, setValues] = useState({});
   const [accountId, setAccountId] = useState("");
+  const [credentials, setCredentials] = useState(null); // the user's saved credentials, loaded when the tool can use one
+  const [credentialId, setCredentialId] = useState("");
   const [busy, setBusy] = useState(null); // "dry" | "run"
   const [report, setReport] = useState(null);
   const [result, setResult] = useState(null);
@@ -504,6 +509,39 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
   const optionalFields = fields.filter(([name]) => !required.has(name));
   const optionalOpen = showOptional || requiredFields.length === 0 || optionalFields.length <= 3;
   const isEmpty = (name) => toArg(schema.properties?.[name], values[name], [], name) === undefined;
+  // Tools that use an API key from the Credentials page (e.g. YouTube) declare it in auth_requirements.credential.
+  const credentialSpec = ready ? loaded.detail?.auth_requirements?.credential ?? null : null;
+  const storageKey = `aiverse.tool-credential.${tool.provider_key ?? toolkit?.provider_key ?? "tool"}`;
+  useEffect(() => {
+    if (!credentialSpec) return undefined;
+    let cancelled = false;
+    listCredentials()
+      .then((list) => {
+        if (cancelled) return;
+        const usable = (Array.isArray(list) ? list : []).filter((c) => c.status === "ACTIVE" && c.storageType === "ENCRYPTED" && c.type === "API_KEY");
+        usable.sort((a, b) => Number(b.identifier === credentialSpec.identifier) - Number(a.identifier === credentialSpec.identifier) || a.name.localeCompare(b.name));
+        setCredentials(usable);
+        let remembered = "";
+        try {
+          remembered = localStorage.getItem(storageKey) ?? "";
+        } catch {
+          remembered = "";
+        }
+        setCredentialId(usable.some((c) => c.id === remembered) ? remembered : usable.find((c) => c.identifier === credentialSpec.identifier)?.id ?? "");
+      })
+      .catch(() => !cancelled && setCredentials([]));
+    return () => {
+      cancelled = true;
+    };
+  }, [credentialSpec, storageKey]);
+  const chooseCredential = (id) => {
+    setCredentialId(id);
+    try {
+      localStorage.setItem(storageKey, id);
+    } catch {
+      /* remembering the choice is optional */
+    }
+  };
   const needsAccount = Boolean(tool.requires_connection) && !toolkit?.no_auth;
   const connected = !needsAccount || accounts.length > 0;
 
@@ -527,8 +565,8 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
     }
     setBusy(kind);
     try {
-      if (kind === "dry") setReport(await testTool(tool.id, args, accountId));
-      else setResult(await executeTool(tool.id, args, accountId));
+      if (kind === "dry") setReport(await testTool(tool.id, args, accountId, { credentialId }));
+      else setResult(await executeTool(tool.id, args, accountId, credentialId));
     } catch (e) {
       setFailure({
         message: e.message,
@@ -541,6 +579,8 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
     }
   };
 
+  const [rawView, setRawView] = useState(false);
+  const formatted = isDocumentOutput(result?.data);
   const output = result?.data === undefined ? "" : JSON.stringify(result.data, null, 2) ?? "";
   const copy = (text) => navigator.clipboard?.writeText(text).catch(() => {});
 
@@ -612,6 +652,33 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
               </div>
             )}
 
+            {credentialSpec && (
+              <div className={`border p-3 ${styles.divider}`}>
+                <label className="flex flex-col gap-1">
+                  <span className={`${styles.label} ${styles.muted}`}>
+                    {credentialSpec.label ?? "API key"} {credentialSpec.required ? "" : "· optional"}
+                  </span>
+                  <select
+                    value={credentialId}
+                    onChange={(e) => chooseCredential(e.target.value)}
+                    disabled={credentials === null}
+                    className={`${styles.input} py-1.5 sm:text-xs`}
+                  >
+                    <option value="">{credentials === null ? "Loading credentials…" : "None (use the server default, if any)"}</option>
+                    {(credentials ?? []).map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}{c.provider ? ` · ${c.provider}` : ""}{c.identifier === credentialSpec.identifier ? "" : ` · ${c.identifier ? c.identifier.replace(/_/g, " ").toLowerCase() : "api key"}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <p className={`m-0 mt-1.5 text-[11.5px] ${styles.muted}`}>
+                  {credentials && credentials.length === 0 ? "No API key credentials yet. " : "Saved keys come from the Credentials page. "}
+                  <a href="/credentials" className={styles.link}>{credentials && credentials.length === 0 ? "Add one" : "Manage credentials"}</a>
+                </p>
+              </div>
+            )}
+
             {fields.length === 0 ? (
               <p className={`m-0 text-[13px] ${styles.muted}`}>This tool takes no inputs.</p>
             ) : (
@@ -640,7 +707,7 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
           </div>
 
           {/* Right: what happened */}
-          <div className={`flex flex-1 flex-col gap-4 border-t px-5 py-4 ${styles.line} ${styles.raised}`} aria-live="polite">
+          <div className={`flex flex-1 flex-col gap-4 border-t px-5 py-4 ${styles.line} ${isLight ? "bg-white" : styles.raised}`} aria-live="polite">
             <p className={`m-0 ${styles.label} ${styles.muted}`}>Result</p>
 
             {!failure && !report && !result && (
@@ -708,10 +775,14 @@ export default function ToolRunner({ tool, toolkit, accounts, isLight, onClose, 
                       {result.metadata?.connected_account_id ? ` · account …${result.metadata.connected_account_id.slice(-6)}` : ""}
                     </span>
                   </p>
-                  {output && <button type="button" className={styles.button} onClick={() => copy(output)}>Copy output</button>}
+                  <div className="flex gap-2">
+                    {formatted && <button type="button" className={styles.button} onClick={() => setRawView((v) => !v)}>{rawView ? "Formatted" : "Raw JSON"}</button>}
+                    {output && <button type="button" className={styles.button} onClick={() => copy(output)}>Copy output</button>}
+                  </div>
                 </div>
                 {result.error && <p className="m-0 mb-2 text-xs text-rose-400">{result.error.message}</p>}
-                {output && (
+                {formatted && !rawView && <DocumentResults data={result.data} styles={styles} isLight={isLight} />}
+                {output && (!formatted || rawView) && (
                   <pre className={`m-0 max-h-96 overflow-auto border p-3 ${styles.mono} ${styles.divider} ${isLight ? "bg-white" : "bg-black"}`}>
                     {output.length > MAX_OUTPUT_CHARS ? `${output.slice(0, MAX_OUTPUT_CHARS)}\n… output truncated` : output}
                   </pre>

@@ -38,10 +38,7 @@ class ToolkitRefreshService:
         key = provider_key or (keys[0] if len(keys) == 1 else None)
         if key is None:
             raise ToolValidationError("provider_key is required when several tool providers are loaded")
-        provider = self.registry.get(key)
-        if not provider.supports_toolkit_discovery:
-            raise ToolValidationError(f"Provider '{provider.provider_key}' cannot load one toolkit at a time")
-        return provider
+        return self.registry.get(key)
 
     @staticmethod
     def max_age(provider) -> timedelta:
@@ -56,6 +53,11 @@ class ToolkitRefreshService:
         key = toolkit_key.strip().lower()
         if not key:
             raise ToolValidationError("toolkit_key is required")
+        if not provider.supports_toolkit_discovery:
+            # Bundled catalogs (YouTube, MCP Toolbox) are synchronized as a whole at startup; nothing to load per app.
+            async with self._session_factory()() as session:
+                synced_at = await self.synchronizer.toolkit_freshness(session, provider.provider_key, key)
+            return self._response("fresh", provider.provider_key, key, synced_at, None, datetime.now(UTC), provider)
         lock = self._locks.setdefault((provider.provider_key, key), asyncio.Lock())
         async with lock: 
             async with self._session_factory()() as session:

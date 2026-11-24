@@ -75,11 +75,12 @@ async def lifespan(app: FastAPI):
             loaded.create() for loaded in loaded_tool_providers.values()
         )
         app.state.tool_provider_registry = tool_provider_registry
-        if "mcp_toolbox" in tool_provider_registry.keys():
-            try:
-                await ToolSynchronizationService(tool_provider_registry).sync_provider("mcp_toolbox", trigger_type="startup")
-            except Exception:
-                log_event(log, "WARNING", get_message("tool.toolbox.sync.failed"), domain="TOOL", action="PROVIDER_SYNC", outcome="FAILURE", exc_info=True)
+        for bundled_provider in ("mcp_toolbox", "youtube"):
+            if bundled_provider in tool_provider_registry.keys():
+                try:
+                    await ToolSynchronizationService(tool_provider_registry).sync_provider(bundled_provider, trigger_type="startup")
+                except Exception:
+                    log_event(log, "WARNING", get_message("tool.toolbox.sync.failed"), domain="TOOL", action="PROVIDER_SYNC", outcome="FAILURE", exc_info=True)
         tool_sync_scheduler = ToolSyncScheduler(
             tool_provider_registry,
             ToolSynchronizationService(tool_provider_registry),

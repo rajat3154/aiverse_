@@ -29,19 +29,19 @@ export default function ToolkitPanel({ toolkit, connections, busy, isLight, onCl
   // First page for the current search. The previous result stays visible until the new one arrives.
   useEffect(() => {
     let cancelled = false;
-    listTools(toolkit.slug, { search: debouncedSearch || undefined, page: 1, pageSize: PAGE_SIZE })
+    listTools(toolkit.slug, { provider: toolkit.provider_key, search: debouncedSearch || undefined, page: 1, pageSize: PAGE_SIZE })
       .then((data) => !cancelled && setResult({ key, items: data.items ?? [], total: data.total ?? 0, page: 1, totalPages: data.total_pages ?? 1, error: "" }))
       .catch((e) => !cancelled && setResult({ key, items: [], total: 0, page: 1, totalPages: 1, error: e.message }));
     return () => {
       cancelled = true;
     };
-  }, [toolkit.slug, debouncedSearch, key]);
+  }, [toolkit.slug, toolkit.provider_key, debouncedSearch, key]);
 
   const runRefresh = useCallback(
     async (force) => {
       setRefresh((current) => ({ ...current, state: "loading", message: "" }));
       try {
-        const outcome = await refreshToolkit(toolkit.slug, { force });
+        const outcome = await refreshToolkit(toolkit.slug, { force, provider: toolkit.provider_key });
         setRefresh({ state: "done", status: outcome.status, syncedAt: outcome.synced_at, counts: outcome.counts, message: "" });
         if (outcome.status !== "fresh") setReloadKey((n) => n + 1); // new data arrived: show it
       } catch (e) {
@@ -52,7 +52,7 @@ export default function ToolkitPanel({ toolkit, connections, busy, isLight, onCl
         }));
       }
     },
-    [toolkit.slug],
+    [toolkit.slug, toolkit.provider_key],
   );
 
   // Opening an app loads its tools once; the list below shows whatever is stored while that runs.
@@ -64,14 +64,14 @@ export default function ToolkitPanel({ toolkit, connections, busy, isLight, onCl
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
     try {
-      const data = await listTools(toolkit.slug, { search: debouncedSearch || undefined, page: result.page + 1, pageSize: PAGE_SIZE });
+      const data = await listTools(toolkit.slug, { provider: toolkit.provider_key, search: debouncedSearch || undefined, page: result.page + 1, pageSize: PAGE_SIZE });
       setResult((current) => ({ ...current, items: [...current.items, ...(data.items ?? [])], page: current.page + 1, totalPages: data.total_pages ?? current.totalPages }));
     } catch (e) {
       setResult((current) => ({ ...current, error: e.message }));
     } finally {
       setLoadingMore(false);
     }
-  }, [toolkit.slug, debouncedSearch, result.page]);
+  }, [toolkit.slug, toolkit.provider_key, debouncedSearch, result.page]);
 
   // Slide in on the next frame, like the LLM provider drawer.
   useEffect(() => {

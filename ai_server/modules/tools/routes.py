@@ -283,6 +283,7 @@ async def execute_tool(payload: ToolExecutionRequest,request: Request,user_id: s
         arguments=payload.arguments,
         user_id=user_id,
         connected_account_id=payload.connected_account_id,
+        credential_id=str(payload.credential_id) if payload.credential_id else None,
         request_id=request.headers.get("X-Request-ID"),
     )
     return _execution_response(result)
@@ -308,7 +309,7 @@ async def test_tool(tool_id: UUID,payload: ToolTestRequest,request: Request,user
     """Dry run by default: validates the tool, arguments and connected account with no external side effects.
     Set ``live: true`` to also run the tool for real."""
     if payload.live:
-        report = await service.live_test(db, tool_id, payload.arguments, user_id,connected_account_id=payload.connected_account_id,request_id=request.headers.get("X-Request-ID"))
+        report = await service.live_test(db, tool_id, payload.arguments, user_id,connected_account_id=payload.connected_account_id,request_id=request.headers.get("X-Request-ID"),credential_id=str(payload.credential_id) if payload.credential_id else None)
     else:
         report = await service.dry_run(db, tool_id, payload.arguments, user_id, connected_account_id=payload.connected_account_id)
     execution = report.pop("execution")

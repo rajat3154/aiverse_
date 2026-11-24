@@ -1,0 +1,34 @@
+{
+  "provider": {
+    "key": "youtube",
+    "slug": "youtube",
+    "name": "YouTube",
+    "description": "Search YouTube videos and read transcripts, playlists, video details and comments.",
+    "type": "internal",
+    "version": "1.0.0",
+    "status": "active",
+    "website": "https://www.youtube.com",
+    "logo": null
+  },
+  "implementation": {
+    "module": "provider",
+    "class": "YouTubeToolProvider"
+  },
+  "capabilities": {
+    "catalog_discovery": true,
+    "tool_execution": true,
+    "tool_testing": true,
+    "webhooks": false,
+    "oauth": false,
+    "mcp": false
+  },
+  "configuration": {
+    "default_max_results": 10,
+    "max_results_limit": 50,
+    "sync_interval_minutes": 0
+  },
+  "metadata": {
+    "sdk": "langchain-youtube",
+    "catalog_source": "Bundled tool list"
+  }
+}

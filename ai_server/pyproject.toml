@@ -27,6 +27,7 @@ dependencies = [
     "langchain-google-genai",
     "langchain-sarvam",
     "langchain-nvidia-ai-endpoints",
+    "langchain-youtube>=0.2.0",
     "composio>=0.32,<0.33",
     "cryptography",
     "pymysql",
